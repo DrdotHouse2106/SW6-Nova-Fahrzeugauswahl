@@ -142,6 +142,18 @@ automatisch als Kacheln.
 
 ## Häufige Probleme und Lösungen
 
+### Passtabelle am Seitenende auf dunklem Footer kaum lesbar (bis 1.10.0)
+
+**Ursache:** Die Beschreibung steht im Footer-Bereich und erbte dessen dunklen Hintergrund
+
+**Lösung:** Ab 1.10.1 erscheint sie als helle Karte. Farben anpassbar über die CSS-Variablen `--vs-desc-footer-bg`, `--vs-desc-footer-color`, `--vs-desc-footer-heading`
+
+### Kacheln zeigen trotz „Präfix entfernen“ den vollen Namen (bis 1.10.0)
+
+**Ursache:** Der Vergleich war akzent- und kodierungsabhängig („Citroen“ ≠ „Citroën“)
+
+**Lösung:** Ab 1.10.1 wird ohne Akzente verglichen. Greift es trotzdem nicht: prüfen, ob das Feld auf Verkaufskanal-Ebene leer gespeichert ist und den globalen Wert überdeckt
+
 ### Öl, Werkzeug oder Literatur verschwinden, sobald ein Fahrzeug gewählt ist
 
 **Ursache:** Der Fahrzeugfilter zeigt nur Artikel mit der gewählten Ausprägung; Artikel ohne Fahrzeug-Zuordnung fallen heraus

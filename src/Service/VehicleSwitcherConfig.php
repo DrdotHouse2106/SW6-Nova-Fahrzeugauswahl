@@ -283,8 +283,11 @@ class VehicleSwitcherConfig
     public function applyStripPrefixes(string $name, array $prefixes): string
     {
         foreach ($prefixes as $prefix) {
-            if (mb_stripos($name, $prefix) === 0) {
-                $stripped = trim(mb_substr($name, mb_strlen($prefix)));
+            // Vergleich ohne Akzente/Groß-Klein: „Citroen“ und „Citroën“ (auch zerlegt eingegeben) greifen gleich
+            $foldedPrefix = self::fold($prefix);
+            if ($foldedPrefix !== '' && str_starts_with(self::fold($name), $foldedPrefix)) {
+                $name = self::nfc($name);
+                $stripped = trim(mb_substr($name, mb_strlen($foldedPrefix)));
                 // Führende Trenner (–, -, :) mit entfernen.
                 $stripped = ltrim($stripped, " \t-–—:•|");
 
@@ -304,5 +307,21 @@ class VehicleSwitcherConfig
         $value = trim($value);
 
         return $value === '' ? null : $value;
+    }
+
+    private static function nfc(string $value): string
+    {
+        return class_exists(\Normalizer::class) ? (\Normalizer::normalize($value, \Normalizer::FORM_C) ?: $value) : $value;
+    }
+
+    /** Kleinbuchstaben ohne Akzente – je Zeichen genau ein Zeichen, damit die Länge zum NFC-Namen passt */
+    private static function fold(string $value): string
+    {
+        $value = trim($value);
+        if (class_exists(\Normalizer::class)) {
+            $value = (string) preg_replace('/\p{Mn}+/u', '', \Normalizer::normalize($value, \Normalizer::FORM_D) ?: $value);
+        }
+
+        return mb_strtolower($value);
     }
 }

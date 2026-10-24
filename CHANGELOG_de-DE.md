@@ -1,3 +1,7 @@
+# 1.10.1
+- Präfix kürzen greift jetzt unabhängig von Akzenten und Schreibweise („Citroen“/„Citroën“)
+- Fahrzeug-Beschreibung am Seitenende als helle Karte – auf dunklem Footer war die Überschrift kaum lesbar
+
 # 1.10.0
 - Neu: **Ausprägung „Passt zu allen Fahrzeugen“** – Artikel mit dieser Ausprägung (Öl, Werkzeug, Literatur, Universalteile) erscheinen bei jedem gewählten Fahrzeug, auch im Menü-Filter. Die Ausprägung bekommt keine Kachel
 

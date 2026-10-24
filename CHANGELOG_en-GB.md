@@ -1,3 +1,7 @@
+# 1.10.1
+- Label prefix stripping ignores accents and case
+- Footer description rendered as a light card for readability on dark footers
+
 # 1.10.0
 - New: "fits all vehicles" option – products with it are shown for every selected vehicle
 

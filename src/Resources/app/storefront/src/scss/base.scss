@@ -80,13 +80,28 @@ $vs-pill-active-color: var(--vs-pill-active-color, #ffffff) !default;
             padding: 10px 12px 14px;
         }
 
+        // Steht im Footer (oft dunkler Hintergrund) → eigene helle Karte, damit Text und Überschriften lesbar bleiben
         &--footer {
             border-top: none;
-            border-bottom: 1px solid $vs-bar-border;
+            margin: 24px auto;
             padding-top: 20px;
             padding-bottom: 20px;
-            color: var(--vs-desc-footer-color, #6b6b6b);
+            background: var(--vs-desc-footer-bg, #fff);
+            color: var(--vs-desc-footer-color, #3a3a3a);
+            border-radius: 12px;
             font-size: 13px;
+
+            @media (min-width: 1200px) {
+                max-width: 1140px;
+            }
+
+            h1, h2, h3, h4, h5, h6 {
+                color: var(--vs-desc-footer-heading, inherit);
+            }
+
+            a:not(.btn) {
+                color: inherit;
+            }
         }
     }
 
