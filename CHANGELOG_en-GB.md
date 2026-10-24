@@ -1,3 +1,6 @@
+# 1.11.1
+- Vehicle link: redirect to original SEO URL; short names matched at word boundaries when unique
+
 # 1.11.0
 - New: select vehicle via link `?fahrzeug=<name|id|alle>` (sets cookie, redirects to clean URL)
 - Footer description: part number links were invisible (white footer link color)

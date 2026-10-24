@@ -56,8 +56,10 @@ class VehicleQuerySubscriber implements EventSubscriberInterface
         // Unbekannter Wert: Parameter still entfernen, Auswahl unverändert lassen
         $query = $request->query->all();
         unset($query[self::PARAM]);
-        $url = $request->getSchemeAndHttpHost() . $request->getBaseUrl() . $request->getPathInfo()
-            . ($query !== [] ? '?' . http_build_query($query) : '');
+        // Ursprüngliche (SEO-)Adresse, nicht die intern aufgelöste /navigation/<id>
+        $original = (string) $request->attributes->get('sw-original-request-uri', '');
+        $path = $original !== '' ? (string) parse_url($original, \PHP_URL_PATH) : $request->getBaseUrl() . $request->getPathInfo();
+        $url = $request->getSchemeAndHttpHost() . $path . ($query !== [] ? '?' . http_build_query($query) : '');
 
         $response = new RedirectResponse($url, 302);
         $response->setPrivate();
@@ -101,7 +103,13 @@ class VehicleQuerySubscriber implements EventSubscriberInterface
         }
 
         $key = VehicleSwitcherConfig::matchKey($value);
+        if ($key === '') {
+            return null;
+        }
+
+        // 1. Voller Name oder Name ohne eingestellten Präfix
         $prefixes = $this->config->getStripPrefixes($salesChannelId);
+        $tails = [];
         foreach ($options as $option) {
             $name = (string) ($option->getTranslation('name') ?? $option->getName());
             if ($key === VehicleSwitcherConfig::matchKey($name)
@@ -109,8 +117,23 @@ class VehicleQuerySubscriber implements EventSubscriberInterface
             ) {
                 return $option->getId();
             }
+
+            // Namensende ab einer Wortgrenze: „Citroën XM“ → „XM“, „JCB Fastrac“ → „Fastrac“
+            $words = preg_split('/\s+/u', trim($name)) ?: [];
+            for ($i = 1; $i < \count($words); ++$i) {
+                if ($key === VehicleSwitcherConfig::matchKey(implode(' ', \array_slice($words, $i)))) {
+                    $tails[$option->getId()] = true;
+                }
+            }
+            // Namensanfang ab Wortgrenze: „JCB Fastrac“ → „JCB“
+            for ($i = 1; $i < \count($words); ++$i) {
+                if ($key === VehicleSwitcherConfig::matchKey(implode(' ', \array_slice($words, 0, $i)))) {
+                    $tails[$option->getId()] = true;
+                }
+            }
         }
 
-        return null;
+        // 2. Nur eindeutige Treffer
+        return \count($tails) === 1 ? (string) array_key_first($tails) : null;
     }
 }
