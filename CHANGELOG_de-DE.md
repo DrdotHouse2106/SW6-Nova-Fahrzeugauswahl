@@ -1,3 +1,7 @@
+# 1.11.0
+- Neu: **Fahrzeug per Link wählen** – `?fahrzeug=XM` (Name, gekürzter Name oder ID, `alle` = zurücksetzen) setzt die Auswahl und leitet auf die Adresse ohne Parameter weiter. Damit lassen sich alte Modell-Seiten als Kategorie-Typ „Link“ auf eine Teile-Kategorie mit vorgewähltem Fahrzeug umleiten
+- Passtabelle am Seitenende: Teilenummern waren auf der hellen Karte unsichtbar (weiße Footer-Links) – jetzt in Akzentfarbe
+
 # 1.10.1
 - Präfix kürzen greift jetzt unabhängig von Akzenten und Schreibweise („Citroen“/„Citroën“)
 - Fahrzeug-Beschreibung am Seitenende als helle Karte – auf dunklem Footer war die Überschrift kaum lesbar

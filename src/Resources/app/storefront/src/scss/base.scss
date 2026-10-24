@@ -99,8 +99,12 @@ $vs-pill-active-color: var(--vs-pill-active-color, #ffffff) !default;
                 color: var(--vs-desc-footer-heading, inherit);
             }
 
-            a:not(.btn) {
-                color: inherit;
+            // Doppelte Klasse: schlägt Theme-Regeln wie „.footer-main a:not(.btn)“ (weiße Footer-Links)
+            &.vehicle-switcher__description--footer a:not(.btn) {
+                color: var(--vs-desc-footer-link, var(--bs-primary, #2f5d46));
+                font-weight: 600;
+                text-decoration: underline;
+                text-underline-offset: 2px;
             }
         }
     }

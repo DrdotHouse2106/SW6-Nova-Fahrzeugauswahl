@@ -309,6 +309,12 @@ class VehicleSwitcherConfig
         return $value === '' ? null : $value;
     }
 
+    /** Vergleichsschlüssel für Namen aus URLs: ohne Akzente, Groß-Klein, Leer- und Sonderzeichen („C5 III (X7)“ = „c5iiix7“) */
+    public static function matchKey(string $value): string
+    {
+        return (string) preg_replace('/[^a-z0-9]+/', '', self::fold($value));
+    }
+
     private static function nfc(string $value): string
     {
         return class_exists(\Normalizer::class) ? (\Normalizer::normalize($value, \Normalizer::FORM_C) ?: $value) : $value;

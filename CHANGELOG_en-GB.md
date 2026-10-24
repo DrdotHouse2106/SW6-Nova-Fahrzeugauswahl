@@ -1,3 +1,7 @@
+# 1.11.0
+- New: select vehicle via link `?fahrzeug=<name|id|alle>` (sets cookie, redirects to clean URL)
+- Footer description: part number links were invisible (white footer link color)
+
 # 1.10.1
 - Label prefix stripping ignores accents and case
 - Footer description rendered as a light card for readability on dark footers

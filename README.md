@@ -109,6 +109,7 @@ Die **Beschriftungs- und Darstellungs-Einstellungen** kannst du zusätzlich pro 
 | **Kategorie-Überschrift anzeigen** | Zeigt auf Kategorieseiten den Kategorienamen als Überschrift, bei gewähltem Fahrzeug ergänzt: „Federkugeln für Citroën XM“. Nur einschalten, wenn die Erlebniswelt keine eigene Überschrift hat. |
 | **Verbindungswort in der Überschrift** | Standard „für“. |
 | **Ausprägung „Passt zu allen Fahrzeugen“** | Z. B. „Alle Fahrzeuge“ in der Fahrzeug-Eigenschaft anlegen und an Öl, Werkzeug, Literatur und Universalteile vergeben. Diese Artikel erscheinen bei jedem gewählten Fahrzeug; die Ausprägung bekommt keine Kachel. Artikel ganz ohne Fahrzeug-Ausprägung verschwinden bei gewähltem Fahrzeug. |
+| **Fahrzeug per Link** | Jede Shop-Adresse mit `?fahrzeug=XM` (Name, gekürzter Name oder ID; `alle` = zurücksetzen) wählt das Fahrzeug und leitet auf dieselbe Adresse ohne Parameter weiter. |
 | **Leere Kategorien im Menü ausblenden** | Bei gewähltem Fahrzeug zeigen Haupt- und mobiles Menü nur Kategorien, die für dieses Fahrzeug Produkte haben (auch mit dynamischen Produktgruppen). Inhaltsseiten ohne Produkte, Links und Ordner bleiben stehen. |
 | **Beschriftung der „Alle"-Kachel** | Freier Text, z. B. `Alle` oder `Zurücksetzen`. Leer = Standardtext. |
 
@@ -141,6 +142,18 @@ automatisch als Kacheln.
   in `style` **und** `script` den Eintrag `@Plugins` enthalten.
 
 ## Häufige Probleme und Lösungen
+
+### Alte Modell-Links (z. B. /BX/) zeigen eine leere Seite
+
+**Ursache:** Ist schon ein anderes Fahrzeug gewählt, filtert die Modell-Kategorie BX nach diesem Fahrzeug – oft bleibt nichts übrig
+
+**Lösung (ab 1.11.0):** Modell-Kategorie auf Typ „Link“ umstellen, externer Link `https://<shop>/<Teile-Kategorie>/?fahrzeug=BX`. Shopware leitet die alte Adresse weiter, das Plugin wählt das Fahrzeug und entfernt den Parameter wieder
+
+### Teilenummern in der Passtabelle unsichtbar (1.10.1)
+
+**Ursache:** Die Theme-Regel für Footer-Links (weiß) war gleich stark wie die Plugin-Regel und gewann
+
+**Lösung:** Ab 1.11.0 stärkere Regel; Linkfarbe über `--vs-desc-footer-link` anpassbar
 
 ### Passtabelle am Seitenende auf dunklem Footer kaum lesbar (bis 1.10.0)
 
