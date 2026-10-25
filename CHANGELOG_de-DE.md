@@ -1,3 +1,6 @@
+# 1.12.1
+- Leistung: „Leere Kategorien im Menü ausblenden“ prüft alle Kategorien mit EINER Sammelabfrage statt einer Abfrage je Kategorie und speichert das Ergebnis je Fahrzeug 15 Minuten – verhindert Zeitüberschreitungen (504) beim ersten Aufruf nach dem Cache-Leeren bei großen Kategoriebäumen
+
 # 1.12.0
 - Neu: **Filtergruppe 2 einklappen** – die Fahrzeuge der zweiten Gruppe erscheinen hinter einem kleinen Aufklapper (Standard „Weitere Fahrzeuge“); ist dort ein Fahrzeug gewählt, ist er offen
 

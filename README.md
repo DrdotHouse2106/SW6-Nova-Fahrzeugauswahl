@@ -144,6 +144,12 @@ automatisch als Kacheln.
 
 ## Häufige Probleme und Lösungen
 
+### Zeitüberschreitung (504) nach dem Cache-Leeren
+
+**Ursache:** Bis 1.12.0 prüfte „Leere Kategorien im Menü ausblenden“ jede Menükategorie mit einer eigenen Abfrage – bei mehreren hundert Kategorien dauerte der erste Aufruf zu lange
+
+**Lösung:** Ab 1.12.1 genügt eine Sammelabfrage je Fahrzeug, das Ergebnis wird 15 Minuten zwischengespeichert. Neue Produkte erscheinen im Menü deshalb mit bis zu 15 Minuten Verzögerung
+
 ### Alte Modell-Links (z. B. /BX/) zeigen eine leere Seite
 
 **Ursache:** Ist schon ein anderes Fahrzeug gewählt, filtert die Modell-Kategorie BX nach diesem Fahrzeug – oft bleibt nichts übrig

@@ -1,3 +1,6 @@
+# 1.12.1
+- Performance: empty-category check uses one aggregation per vehicle (cached 15 min) instead of one query per category
+
 # 1.12.0
 - New: collapse filter group 2 behind a "More vehicles" toggle
 

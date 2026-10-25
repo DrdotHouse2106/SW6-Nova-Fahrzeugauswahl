@@ -7,11 +7,15 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Blendet im Menü Kategorien aus, die für das gewählte Fahrzeug keine Produkte haben.
@@ -21,12 +25,19 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class CategoryVehicleFilter
 {
+    /** Wie lange die Liste „Kategorien mit Produkten“ je Fahrzeug zwischengespeichert wird (Sekunden) */
+    private const CACHE_TTL = 900;
+
     /** @var array<string, bool> */
     private array $memo = [];
 
+    /** @var array<string, array<string, true>> Kategorie-IDs mit Produkten je Fahrzeug-Auswahl */
+    private array $categorySets = [];
+
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
-        private readonly AbstractProductStreamBuilder $streamBuilder
+        private readonly AbstractProductStreamBuilder $streamBuilder,
+        private readonly CacheInterface $cache
     ) {
     }
 
@@ -85,29 +96,77 @@ class CategoryVehicleFilter
             return $this->memo[$key];
         }
 
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
-        $criteria->setTitle('vehicle-switcher::category-has-products');
-
         $streamId = $category->getProductStreamId();
         if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && $streamId !== null) {
+            // Dynamische Produktgruppe: einzeln prüfen (selten)
+            $criteria = new Criteria();
+            $criteria->setLimit(1);
+            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+            $criteria->setTitle('vehicle-switcher::category-has-products');
             $this->streamBuilder->enrichCriteria($criteria, $streamId, $context->getContext());
+            if ($optionIds !== null) {
+                $criteria->addFilter(new EqualsAnyFilter('product.properties.id', $optionIds));
+            }
+            try {
+                $result = $this->productRepository->searchIds($criteria, $context)->getIds() !== [];
+            } catch (\Throwable) {
+                $result = true;
+            }
         } else {
-            $criteria->addFilter(new EqualsFilter('product.categoriesRo.id', $category->getId()));
-        }
-
-        if ($optionIds !== null) {
-            $criteria->addFilter(new EqualsAnyFilter('product.properties.id', $optionIds));
-        }
-
-        try {
-            $result = $this->productRepository->searchIds($criteria, $context)->getIds() !== [];
-        } catch (\Throwable) {
-            // Im Zweifel anzeigen
-            $result = true;
+            // Feste Zuordnung: EINE Sammelabfrage für alle Kategorien statt einer Abfrage je Kategorie
+            $set = $this->categoriesWithProducts($optionIds, $context);
+            $result = $set === null || isset($set[$category->getId()]);
         }
 
         return $this->memo[$key] = $result;
+    }
+
+    /**
+     * Alle Kategorie-IDs (inkl. Elternkategorien über categoriesRo), die sichtbare Produkte enthalten –
+     * optional nur Produkte mit einer der Fahrzeug-Ausprägungen. Ergebnis wird je Verkaufskanal,
+     * Sprache und Fahrzeug kurz zwischengespeichert, damit ein kalter Cache nicht hunderte Abfragen auslöst.
+     *
+     * @param list<string>|null $optionIds
+     *
+     * @return array<string, true>|null null = Abfrage fehlgeschlagen (im Zweifel alles anzeigen)
+     */
+    private function categoriesWithProducts(?array $optionIds, SalesChannelContext $context): ?array
+    {
+        $options = $optionIds ?? [];
+        sort($options);
+        $memoKey = $optionIds === null ? 'all' : implode(',', $options);
+        if (\array_key_exists($memoKey, $this->categorySets)) {
+            return $this->categorySets[$memoKey];
+        }
+
+        $cacheKey = 'nova-vehicle-categories-' . md5(implode('|', [
+            $context->getSalesChannelId(),
+            $context->getLanguageId(),
+            $context->getCurrentCustomerGroup()->getId(),
+            $memoKey,
+        ]));
+
+        try {
+            $ids = $this->cache->get($cacheKey, function (ItemInterface $item) use ($optionIds, $context): array {
+                $item->expiresAfter(self::CACHE_TTL);
+
+                $criteria = new Criteria();
+                $criteria->setLimit(1);
+                $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+                $criteria->setTitle('vehicle-switcher::categories-with-products');
+                if ($optionIds !== null) {
+                    $criteria->addFilter(new EqualsAnyFilter('product.properties.id', $optionIds));
+                }
+                $criteria->addAggregation(new TermsAggregation('nova-vehicle-categories', 'product.categoriesRo.id', 10000));
+
+                $result = $this->productRepository->aggregate($criteria, $context)->get('nova-vehicle-categories');
+
+                return $result instanceof TermsResult ? array_values(array_map('strval', $result->getKeys())) : [];
+            });
+        } catch (\Throwable) {
+            return $this->categorySets[$memoKey] = null;
+        }
+
+        return $this->categorySets[$memoKey] = array_fill_keys($ids, true);
     }
 }
