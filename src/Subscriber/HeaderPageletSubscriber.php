@@ -78,12 +78,13 @@ class HeaderPageletSubscriber implements EventSubscriberInterface
 
         // Gekürzte Beschriftungen für die Kacheln (Präfix wie "Citroën" raus).
         $stripPrefixes = $this->config->getStripPrefixes($salesChannelId);
+        $stripSuffixes = $this->config->getStripSuffixes($salesChannelId);
         $displayLabels = [];
 
-        if ($stripPrefixes !== []) {
+        if ($stripPrefixes !== [] || $stripSuffixes !== []) {
             foreach ($options as $option) {
                 $name = $option->getTranslation('name') ?? $option->getName() ?? '';
-                $short = $this->config->applyStripPrefixes($name, $stripPrefixes);
+                $short = $this->config->applyStripSuffixes($this->config->applyStripPrefixes($name, $stripPrefixes), $stripSuffixes);
 
                 if ($short !== $name) {
                     $displayLabels[$option->getId()] = $short;

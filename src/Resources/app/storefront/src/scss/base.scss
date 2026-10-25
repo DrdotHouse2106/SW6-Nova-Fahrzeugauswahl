@@ -120,8 +120,10 @@ $vs-pill-active-color: var(--vs-pill-active-color, #ffffff) !default;
             padding: 0 24px 8px;
         }
 
+        // Pfeil nach oben (Grundstellung ist 45° = nach unten)
         &[open] > .vehicle-switcher__more-toggle::after {
-            transform: rotate(180deg);
+            transform: rotate(225deg);
+            margin-top: 3px;
         }
     }
 
@@ -243,13 +245,48 @@ $vs-pill-active-color: var(--vs-pill-active-color, #ffffff) !default;
         }
     }
 
-    // Desktop: umbrechen statt scrollen
+    // Desktop: umbrechen statt scrollen, etwas kompakter (mehr Fahrzeuge in einer Zeile)
     @media (min-width: 768px) {
         &__track {
             flex-wrap: wrap;
             overflow-x: visible;
+            column-gap: 6px;
             row-gap: 8px;
             padding: 10px 24px;
+        }
+
+        &__item {
+            padding: 6px 11px;
+        }
+    }
+
+    // „Weitere Fahrzeuge“: am Handy unter der Leiste, ab Tablet-Breite am Ende der Kachelreihe
+    &__more--inline {
+        display: none;
+    }
+
+    @media (min-width: 768px) {
+        &__more--below {
+            display: none;
+        }
+
+        &__more--inline {
+            display: block;
+            flex: 0 0 auto;
+            align-self: center;
+            max-width: none;
+            margin: 0 0 0 6px;
+            padding: 0;
+
+            // Aufgeklappt: eigene Zeile unter den Kacheln
+            &[open] {
+                flex-basis: 100%;
+                margin-left: 0;
+            }
+
+            .vehicle-switcher__track--more {
+                padding: 8px 0 0;
+            }
         }
     }
 }

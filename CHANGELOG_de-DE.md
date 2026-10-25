@@ -1,3 +1,8 @@
+# 1.13.0
+- Leiste kompakter: „Weitere Fahrzeuge“ steht ab Tablet-Breite am Ende der Kachelreihe statt in einer eigenen Zeile; Kacheln mit etwas weniger Innen- und Zwischenabstand. Am Handy bleibt der Aufklapper unter der seitlich scrollenden Leiste
+- Neu: **Wortende in den Kacheln ausblenden** – z. B. „Umbau“: aus „Burton Umbau“ wird „Burton“ (nur Anzeige, voller Name im Tooltip)
+- Pfeil bei aufgeklapptem „Weitere Fahrzeuge“ zeigt jetzt nach oben (war schräg)
+
 # 1.12.5
 - Leistung: „Nur Fahrzeuge mit Produkten anzeigen“ prüft per direkter Datenbankabfrage und speichert das Ergebnis zwischen (gleiche Dauer wie die Menü-Prüfung, Standard 24 Stunden). Die bisherige Prüfung brauchte bei großen Katalogen rund 30 Sekunden – bei jedem ungecachten Seitenaufruf, auch ohne gewähltes Fahrzeug
 

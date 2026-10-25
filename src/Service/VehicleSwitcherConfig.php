@@ -325,6 +325,53 @@ class VehicleSwitcherConfig
         return $name;
     }
 
+    /**
+     * Wortende, das auf den Kacheln entfällt (z. B. „Umbau“: „Burton Umbau“ → „Burton“).
+     *
+     * @return list<string>
+     */
+    public function getStripSuffixes(?string $salesChannelId): array
+    {
+        $value = $this->systemConfigService->get(self::PREFIX . 'stripLabelSuffix', $salesChannelId);
+        if (!\is_string($value) || trim($value) === '') {
+            return [];
+        }
+
+        $suffixes = array_values(array_filter(array_map('trim', explode(',', $value)), static fn (string $part): bool => $part !== ''));
+        usort($suffixes, static fn (string $a, string $b): int => mb_strlen($b) <=> mb_strlen($a));
+
+        return $suffixes;
+    }
+
+    /**
+     * Entfernt das erste passende Wortende (nur als ganzes Wort, Name bleibt nie leer).
+     *
+     * @param list<string> $suffixes
+     */
+    public function applyStripSuffixes(string $name, array $suffixes): string
+    {
+        foreach ($suffixes as $suffix) {
+            $foldedSuffix = self::fold($suffix);
+            $foldedName = self::fold($name);
+            if ($foldedSuffix === '' || !str_ends_with($foldedName, $foldedSuffix)) {
+                continue;
+            }
+
+            $name = self::nfc($name);
+            $rest = mb_substr($name, 0, mb_strlen($name) - mb_strlen($foldedSuffix));
+            // Nur ganze Wörter: davor muss ein Leer- oder Trennzeichen stehen
+            if ($rest === '' || preg_match('/[\s\-–—:•|(]$/u', $rest) !== 1) {
+                continue;
+            }
+
+            $stripped = rtrim($rest, " \t-–—:•|(");
+
+            return $stripped !== '' ? $stripped : $name;
+        }
+
+        return $name;
+    }
+
     private function trimToNull(mixed $value): ?string
     {
         if (!\is_string($value)) {

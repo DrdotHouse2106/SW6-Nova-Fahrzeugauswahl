@@ -1,3 +1,8 @@
+# 1.13.0
+- More compact bar: "More vehicles" toggle inline at the end of the row on tablet/desktop, slightly tighter pills
+- New: strip a word at the end of pill labels (e.g. "Umbau")
+- Arrow of the opened "More vehicles" toggle points up
+
 # 1.12.5
 - Performance: "only vehicles with products" uses a direct SQL query and is cached (was ~30 s on every uncached page)
 

@@ -120,6 +120,13 @@
             <helpText>Text, der am Anfang jeder Kachel-Beschriftung entfernt wird – z. B. „Citroën“, damit aus „Citroën 2CV6“ nur „2CV6“ wird. Betrifft NUR die Anzeige in der Leiste; die Eigenschaft selbst (Filter, SEO, Produktdetails) bleibt unverändert. Mehrere Präfixe mit Komma trennen, z. B. „Citroën, Citroen“. Tipp: Präfix ausblenden + als Gruppen-Überschrift setzen ergibt „Citroën: [2CV6] [2CV4] …“.</helpText>
         </input-field>
 
+        <input-field type="text">
+            <name>stripLabelSuffix</name>
+            <label>Wortende in den Kacheln ausblenden</label>
+            <placeholder>Umbau</placeholder>
+            <helpText>Text, der am Ende einer Kachel-Beschriftung entfällt – z. B. „Umbau“, damit aus „Burton Umbau“ nur „Burton“ wird (spart Platz in der Leiste). Nur ganze Wörter, nur die Anzeige; der volle Name steht im Tooltip. Mehrere mit Komma trennen.</helpText>
+        </input-field>
+
         <input-field type="bool">
             <name>showAllOption</name>
             <label>„Alle“-Kachel anzeigen</label>

@@ -27,11 +27,11 @@
     </button>
 {% endmacro %}
 
-{% macro more_box(more, options, activeOptionId, displayLabels) %}
+{% macro more_box(more, options, activeOptionId, displayLabels, modifier) %}
     {% import _self as vsw %}
     {% set moreOptions = options.filterByGroupId(more.get('groupId')) %}
     {% if moreOptions.count > 0 %}
-        <details class="vehicle-switcher__more"{% if more.get('open') %} open{% endif %}>
+        <details class="vehicle-switcher__more{% if modifier|default('') %} vehicle-switcher__more--{{ modifier }}{% endif %}"{% if more.get('open') %} open{% endif %}>
             <summary class="vehicle-switcher__more-toggle">{{ more.get('label')|sw_sanitize }}</summary>
             <div class="vehicle-switcher__track vehicle-switcher__track--more" role="group" aria-label="{{ more.get('label')|sw_sanitize }}">
                 {% for option in moreOptions %}
@@ -106,9 +106,13 @@
 
                             {{ vsw.option_pill(option, activeOptionId, displayLabels) }}
                         {% endfor %}
+
+                        {# Ab Tablet-Breite: „Weitere Fahrzeuge“ am Ende der Kachelreihe statt in einer eigenen Zeile #}
+                        {% if more %}{{ vsw.more_box(more, options, activeOptionId, displayLabels, 'inline') }}{% endif %}
                     </div>
 
-                    {% if more %}{{ vsw.more_box(more, options, activeOptionId, displayLabels) }}{% endif %}
+                    {# Handy (Leiste scrollt seitlich): Aufklapper unter der Leiste #}
+                    {% if more %}{{ vsw.more_box(more, options, activeOptionId, displayLabels, 'below') }}{% endif %}
                 {% endblock %}
             {% endif %}
 
