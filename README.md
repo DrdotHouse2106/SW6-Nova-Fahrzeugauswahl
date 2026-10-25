@@ -112,6 +112,7 @@ Die **Beschriftungs- und Darstellungs-Einstellungen** kannst du zusätzlich pro 
 | **Fahrzeug per Link** | Jede Shop-Adresse mit `?fahrzeug=XM` (Name, gekürzter Name oder ID; `alle` = zurücksetzen) wählt das Fahrzeug und leitet auf dieselbe Adresse ohne Parameter weiter. |
 | **Filtergruppe 2 einklappen** | Zweite Fahrzeuggruppe (z. B. DS/ID/HY/Traction) hinter einem Aufklapper „Weitere Fahrzeuge“ statt dauerhaft in der Leiste. Beschriftung frei wählbar. |
 | **Leere Kategorien im Menü ausblenden** | Bei gewähltem Fahrzeug zeigen Haupt- und mobiles Menü nur Kategorien, die für dieses Fahrzeug Produkte haben (auch mit dynamischen Produktgruppen). Inhaltsseiten ohne Produkte, Links und Ordner bleiben stehen. |
+| **Menü-Prüfung zwischenspeichern (Stunden)** | Wie lange gespeichert bleibt, welche Kategorien je Fahrzeug Produkte haben. Standard 24, wird zusätzlich stündlich vorberechnet. |
 | **Beschriftung der „Alle"-Kachel** | Freier Text, z. B. `Alle` oder `Zurücksetzen`. Leer = Standardtext. |
 
 Die sichtbaren Kacheltexte selbst sind die **Namen der Eigenschafts-Optionen** – die änderst du direkt in Shopware unter *Kataloge → Eigenschaften* (bzw. mehrsprachig je Übersetzung).
@@ -148,7 +149,7 @@ automatisch als Kacheln.
 
 **Ursache:** Bis 1.12.0 prüfte „Leere Kategorien im Menü ausblenden“ jede Menükategorie mit einer eigenen Abfrage – bei mehreren hundert Kategorien dauerte der erste Aufruf zu lange
 
-**Lösung:** Ab 1.12.1 genügt eine Sammelabfrage je Fahrzeug, das Ergebnis wird 15 Minuten zwischengespeichert. Neue Produkte erscheinen im Menü deshalb mit bis zu 15 Minuten Verzögerung
+**Lösung:** Ab 1.12.2 genügt eine schnelle Datenbankabfrage je Fahrzeug. Das Ergebnis wird zwischengespeichert, Standard 24 Stunden, einstellbar unter „Menü-Prüfung zwischenspeichern“. Die geplante Aufgabe `nova_fahrzeugauswahl.warm_category_cache` rechnet es zusätzlich stündlich für alle Fahrzeuge vor. Neue oder leer gewordene Kategorien erscheinen im Menü deshalb erst nach der nächsten Vorberechnung, sofort nach „Caches leeren“. Voraussetzung: Die geplanten Aufgaben laufen (Einstellungen → System → Geplante Aufgaben bzw. Cronjob/Worker).
 
 ### Alte Modell-Links (z. B. /BX/) zeigen eine leere Seite
 

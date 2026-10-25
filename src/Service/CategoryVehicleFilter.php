@@ -7,11 +7,13 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -25,9 +27,6 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class CategoryVehicleFilter
 {
-    /** Wie lange die Liste „Kategorien mit Produkten“ je Fahrzeug zwischengespeichert wird (Sekunden) */
-    private const CACHE_TTL = 900;
-
     /** @var array<string, bool> */
     private array $memo = [];
 
@@ -37,7 +36,9 @@ class CategoryVehicleFilter
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
         private readonly AbstractProductStreamBuilder $streamBuilder,
-        private readonly CacheInterface $cache
+        private readonly CacheInterface $cache,
+        private readonly Connection $connection,
+        private readonly VehicleSwitcherConfig $config
     ) {
     }
 
@@ -122,9 +123,12 @@ class CategoryVehicleFilter
     }
 
     /**
-     * Alle Kategorie-IDs (inkl. Elternkategorien über categoriesRo), die sichtbare Produkte enthalten –
-     * optional nur Produkte mit einer der Fahrzeug-Ausprägungen. Ergebnis wird je Verkaufskanal,
-     * Sprache und Fahrzeug kurz zwischengespeichert, damit ein kalter Cache nicht hunderte Abfragen auslöst.
+     * Alle Kategorie-IDs (inkl. Elternkategorien über product_category_tree), die sichtbare Produkte enthalten –
+     * optional nur Produkte mit einer der Fahrzeug-Ausprägungen. Ergebnis wird je Verkaufskanal und Fahrzeug
+     * zwischengespeichert (Dauer einstellbar, Standard 24 Stunden).
+     *
+     * Direkte SQL-Abfrage statt DAL-Aggregation: Die Aggregation über categoriesRo mit vererbten Eigenschaften
+     * dauerte bei großen Katalogen 30 Sekunden und mehr.
      *
      * @param list<string>|null $optionIds
      *
@@ -139,34 +143,87 @@ class CategoryVehicleFilter
             return $this->categorySets[$memoKey];
         }
 
-        $cacheKey = 'nova-vehicle-categories-' . md5(implode('|', [
-            $context->getSalesChannelId(),
-            $context->getLanguageId(),
-            $context->getCurrentCustomerGroup()->getId(),
-            $memoKey,
-        ]));
+        $salesChannelId = $context->getSalesChannelId();
 
         try {
-            $ids = $this->cache->get($cacheKey, function (ItemInterface $item) use ($optionIds, $context): array {
-                $item->expiresAfter(self::CACHE_TTL);
+            $ids = $this->cache->get($this->cacheKey($salesChannelId, $optionIds), function (ItemInterface $item) use ($optionIds, $salesChannelId): array {
+                $item->expiresAfter($this->config->getCategoryCacheHours($salesChannelId) * 3600);
 
-                $criteria = new Criteria();
-                $criteria->setLimit(1);
-                $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
-                $criteria->setTitle('vehicle-switcher::categories-with-products');
-                if ($optionIds !== null) {
-                    $criteria->addFilter(new EqualsAnyFilter('product.properties.id', $optionIds));
-                }
-                $criteria->addAggregation(new TermsAggregation('nova-vehicle-categories', 'product.categoriesRo.id', 10000));
-
-                $result = $this->productRepository->aggregate($criteria, $context)->get('nova-vehicle-categories');
-
-                return $result instanceof TermsResult ? array_values(array_map('strval', $result->getKeys())) : [];
+                return $this->queryCategoryIds($optionIds, $salesChannelId);
             });
         } catch (\Throwable) {
             return $this->categorySets[$memoKey] = null;
         }
 
         return $this->categorySets[$memoKey] = array_fill_keys($ids, true);
+    }
+
+    /**
+     * Rechnet die Liste neu und legt sie in den Zwischenspeicher (geplante Aufgabe), damit kein
+     * Seitenaufruf selbst rechnen muss.
+     *
+     * @param list<string>|null $optionIds null = alle Produkte
+     */
+    public function warmUp(string $salesChannelId, ?array $optionIds): void
+    {
+        $ids = $this->queryCategoryIds($optionIds, $salesChannelId);
+        $key = $this->cacheKey($salesChannelId, $optionIds);
+
+        $this->cache->delete($key);
+        $this->cache->get($key, function (ItemInterface $item) use ($ids, $salesChannelId): array {
+            $item->expiresAfter($this->config->getCategoryCacheHours($salesChannelId) * 3600);
+
+            return $ids;
+        });
+    }
+
+    /**
+     * @param list<string>|null $optionIds
+     */
+    private function cacheKey(string $salesChannelId, ?array $optionIds): string
+    {
+        $options = $optionIds ?? [];
+        sort($options);
+
+        return 'nova-vehicle-categories-' . md5($salesChannelId . '|' . ($optionIds === null ? 'all' : implode(',', $options)));
+    }
+
+    /**
+     * @param list<string>|null $optionIds
+     *
+     * @return list<string>
+     */
+    private function queryCategoryIds(?array $optionIds, string $salesChannelId): array
+    {
+        // Varianten erben Eigenschaften und Sichtbarkeiten über die Spalten product.properties / product.visibilities
+        $sql = 'SELECT DISTINCT LOWER(HEX(pct.category_id))
+            FROM product p
+            LEFT JOIN product parent ON parent.id = p.parent_id AND parent.version_id = p.version_id
+            INNER JOIN product_visibility pv ON pv.product_id = IFNULL(p.visibilities, p.id)
+                AND pv.product_version_id = p.version_id
+                AND pv.sales_channel_id = :salesChannelId
+                AND pv.visibility >= :visibility
+            INNER JOIN product_category_tree pct ON pct.product_id = p.id AND pct.product_version_id = p.version_id';
+
+        $params = [
+            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
+            'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+        ];
+        $types = [];
+
+        if ($optionIds !== null) {
+            $sql .= '
+            INNER JOIN product_property pp ON pp.product_id = IFNULL(p.properties, p.id)
+                AND pp.product_version_id = p.version_id
+                AND pp.property_group_option_id IN (:optionIds)';
+            $params['optionIds'] = Uuid::fromHexToBytesList($optionIds);
+            $types['optionIds'] = ArrayParameterType::BINARY;
+        }
+
+        $sql .= '
+            WHERE p.version_id = :version AND COALESCE(p.active, parent.active) = 1';
+
+        return array_values(array_map('strval', $this->connection->fetchFirstColumn($sql, $params, $types)));
     }
 }

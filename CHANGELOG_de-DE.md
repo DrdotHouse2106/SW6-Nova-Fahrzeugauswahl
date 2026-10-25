@@ -1,3 +1,8 @@
+# 1.12.2
+- Leistung: Die Menü-Prüfung „Leere Kategorien ausblenden“ nutzt eine direkte Datenbankabfrage statt der Shopware-Aggregation (die dauerte bei großen Katalogen 30 Sekunden und mehr je Fahrzeug)
+- Neu: Eine geplante Aufgabe rechnet die Prüfung stündlich für alle Fahrzeuge vor – auch der erste Aufruf nach einem Fahrzeugwechsel muss nicht mehr warten
+- Neu: Einstellung **Menü-Prüfung zwischenspeichern (Stunden)**, Standard 24
+
 # 1.12.1
 - Leistung: „Leere Kategorien im Menü ausblenden“ prüft alle Kategorien mit EINER Sammelabfrage statt einer Abfrage je Kategorie und speichert das Ergebnis je Fahrzeug 15 Minuten – verhindert Zeitüberschreitungen (504) beim ersten Aufruf nach dem Cache-Leeren bei großen Kategoriebäumen
 

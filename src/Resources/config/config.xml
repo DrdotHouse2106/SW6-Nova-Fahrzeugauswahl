@@ -200,6 +200,13 @@
             <defaultValue>false</defaultValue>
         </input-field>
 
+        <input-field type="int">
+            <name>categoryCacheHours</name>
+            <label>Menü-Prüfung zwischenspeichern (Stunden)</label>
+            <helpText>Wie lange gespeichert bleibt, welche Kategorien für ein Fahrzeug Produkte haben. Neue oder entfernte Kategorien erscheinen im Menü spätestens nach dieser Zeit – sofort nach „Caches leeren“. Standard: 24.</helpText>
+            <defaultValue>24</defaultValue>
+        </input-field>
+
         <input-field type="text">
             <name>allOptionLabel</name>
             <label>Beschriftung der „Alle“-Kachel</label>

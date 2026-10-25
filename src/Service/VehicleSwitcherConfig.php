@@ -214,6 +214,14 @@ class VehicleSwitcherConfig
         return (bool) $this->systemConfigService->get(self::PREFIX . 'hideEmptyCategories', $salesChannelId);
     }
 
+    /** Wie lange „Kategorien mit Produkten“ je Fahrzeug zwischengespeichert wird (Stunden, Standard 24) */
+    public function getCategoryCacheHours(?string $salesChannelId): int
+    {
+        $value = (int) $this->systemConfigService->get(self::PREFIX . 'categoryCacheHours', $salesChannelId);
+
+        return $value > 0 ? $value : 24;
+    }
+
     public function getCategoryHeadingJoiner(?string $salesChannelId): string
     {
         return $this->trimToNull($this->systemConfigService->get(self::PREFIX . 'categoryHeadingJoiner', $salesChannelId)) ?? 'für';

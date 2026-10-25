@@ -115,6 +115,8 @@ pills automatically.
 
 ## Notes
 
+- "Hide empty categories" is computed with one SQL query per vehicle, cached (default 24 h, configurable) and pre-computed hourly by the scheduled task `nova_fahrzeugauswahl.warm_category_cache`.
+
 - The filter is applied server-side via the session → the page reloads once after a click.
 - There is always **exactly one** vehicle active or none (`""` = "All vehicles").
 - The cookie value is only accepted server-side if it is a valid UUID (`VehicleSelectionStorage::sanitize`). Invalid values are ignored and never reach the HTTP cache key or the product filter.

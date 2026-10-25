@@ -1,3 +1,8 @@
+# 1.12.2
+- Performance: empty-category check uses a direct SQL query instead of the DAL aggregation (30 s+ per vehicle on large catalogues)
+- New: scheduled task pre-computes the check hourly for all vehicles
+- New: setting for the cache lifetime in hours (default 24)
+
 # 1.12.1
 - Performance: empty-category check uses one aggregation per vehicle (cached 15 min) instead of one query per category
 
