@@ -110,6 +110,58 @@ $vs-pill-active-color: var(--vs-pill-active-color, #ffffff) !default;
     }
 
     // Layout "stacked": jede Filtergruppe in einer eigenen Zeile
+    // Eingeklappte Filtergruppe 2 („Weitere Fahrzeuge“)
+    &__more {
+        max-width: 1920px;
+        margin: 0 auto;
+        padding: 0 12px 6px;
+
+        @media (min-width: 768px) {
+            padding: 0 24px 8px;
+        }
+
+        &[open] > .vehicle-switcher__more-toggle::after {
+            transform: rotate(180deg);
+        }
+    }
+
+    &__more-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        list-style: none;
+        font-size: 13px;
+        color: var(--vs-more-color, #6b6b6b);
+        padding: 2px 0;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+
+        &::after {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-right: 1.5px solid currentColor;
+            border-bottom: 1.5px solid currentColor;
+            transform: rotate(45deg);
+            margin-top: -3px;
+            transition: transform .15s ease;
+        }
+
+        &:hover,
+        &:focus-visible {
+            color: inherit;
+            text-decoration: underline;
+        }
+    }
+
+    &__track--more {
+        flex-wrap: wrap;
+        padding-top: 6px;
+    }
+
     &__row {
         display: flex;
         align-items: center;

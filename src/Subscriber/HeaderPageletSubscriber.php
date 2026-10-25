@@ -129,6 +129,17 @@ class HeaderPageletSubscriber implements EventSubscriberInterface
                 $this->config->getDescriptionCssClass($salesChannelId)
             )
         );
+
+        // Filtergruppe 2 hinter „Weitere Fahrzeuge“ – offen, wenn das gewählte Fahrzeug dort liegt
+        $collapsedGroupId = $this->config->getCollapsedGroupId($salesChannelId);
+        if ($collapsedGroupId !== null && \in_array($collapsedGroupId, $groupIds, true)) {
+            $activeOption = $activeId !== null ? $options->get($activeId) : null;
+            $event->getPagelet()->addExtension('vehicleSwitcherMore', new ArrayStruct([
+                'groupId' => $collapsedGroupId,
+                'label' => $this->config->getCollapseLabel($salesChannelId),
+                'open' => $activeOption !== null && $activeOption->getGroupId() === $collapsedGroupId,
+            ]));
+        }
     }
 
     /**

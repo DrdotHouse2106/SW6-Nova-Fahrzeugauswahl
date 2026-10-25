@@ -1,3 +1,6 @@
+# 1.12.0
+- New: collapse filter group 2 behind a "More vehicles" toggle
+
 # 1.11.1
 - Vehicle link: redirect to original SEO URL; short names matched at word boundaries when unique
 

@@ -27,8 +27,24 @@
     </button>
 {% endmacro %}
 
+{% macro more_box(more, options, activeOptionId, displayLabels) %}
+    {% import _self as vsw %}
+    {% set moreOptions = options.filterByGroupId(more.get('groupId')) %}
+    {% if moreOptions.count > 0 %}
+        <details class="vehicle-switcher__more"{% if more.get('open') %} open{% endif %}>
+            <summary class="vehicle-switcher__more-toggle">{{ more.get('label')|sw_sanitize }}</summary>
+            <div class="vehicle-switcher__track vehicle-switcher__track--more" role="group" aria-label="{{ more.get('label')|sw_sanitize }}">
+                {% for option in moreOptions %}
+                    {{ vsw.option_pill(option, activeOptionId, displayLabels) }}
+                {% endfor %}
+            </div>
+        </details>
+    {% endif %}
+{% endmacro %}
+
 {% block component_vehicle_switcher %}
     {% set layout = layout|default('bar') %}
+    {% set moreGroupId = more ? more.get('groupId') : null %}
     <div class="vehicle-switcher vehicle-switcher--{{ layout }}"
          data-vehicle-switcher="true">
 
@@ -44,7 +60,7 @@
                     </div>
                 {% endif %}
 
-                {% for groupId in groupOrder %}
+                {% for groupId in groupOrder|filter(g => g != moreGroupId) %}
                     {% set groupLabel = groupLabels[groupId]|default('') %}
                     {% set groupOptions = options.filterByGroupId(groupId) %}
 
@@ -66,6 +82,8 @@
                     {% endif %}
                 {% endfor %}
 
+                {% if more %}{{ vsw.more_box(more, options, activeOptionId, displayLabels) }}{% endif %}
+
             {#  ----------  Alles in einem Balken  ----------  #}
             {% else %}
                 {% block component_vehicle_switcher_bar %}
@@ -77,7 +95,7 @@
                         {% endif %}
 
                         {% set currentGroupId = null %}
-                        {% for option in options %}
+                        {% for option in options|filter(o => o.groupId != moreGroupId) %}
                             {% if option.groupId != currentGroupId %}
                                 {% set currentGroupId = option.groupId %}
                                 {% set groupLabel = groupLabels[option.groupId]|default('') %}
@@ -89,6 +107,8 @@
                             {{ vsw.option_pill(option, activeOptionId, displayLabels) }}
                         {% endfor %}
                     </div>
+
+                    {% if more %}{{ vsw.more_box(more, options, activeOptionId, displayLabels) }}{% endif %}
                 {% endblock %}
             {% endif %}
 

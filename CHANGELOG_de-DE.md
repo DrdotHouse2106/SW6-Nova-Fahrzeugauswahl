@@ -1,3 +1,6 @@
+# 1.12.0
+- Neu: **Filtergruppe 2 einklappen** – die Fahrzeuge der zweiten Gruppe erscheinen hinter einem kleinen Aufklapper (Standard „Weitere Fahrzeuge“); ist dort ein Fahrzeug gewählt, ist er offen
+
 # 1.11.1
 - Fahrzeug per Link: Weiterleitung auf die ursprüngliche Adresse statt /navigation/<id>; Kurzformen wie `?fahrzeug=xm` oder `?fahrzeug=jcb` werden auch ohne eingestellten Präfix erkannt (nur bei eindeutigem Treffer)
 

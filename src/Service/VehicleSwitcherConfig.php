@@ -134,6 +134,25 @@ class VehicleSwitcherConfig
             : self::SORT_POSITION;
     }
 
+    /**
+     * Gruppen-ID der eingeklappten Filtergruppe 2 oder null.
+     */
+    public function getCollapsedGroupId(?string $salesChannelId): ?string
+    {
+        if (!(bool) $this->systemConfigService->get(self::PREFIX . 'collapseGroupB', $salesChannelId)) {
+            return null;
+        }
+
+        $groupId = $this->systemConfigService->get(self::PREFIX . 'propertyGroupIdB', $salesChannelId);
+
+        return \is_string($groupId) && $groupId !== '' ? $groupId : null;
+    }
+
+    public function getCollapseLabel(?string $salesChannelId): string
+    {
+        return $this->trimToNull($this->systemConfigService->get(self::PREFIX . 'collapseLabel', $salesChannelId)) ?? 'Weitere Fahrzeuge';
+    }
+
     public function showAllOption(?string $salesChannelId): bool
     {
         $value = $this->systemConfigService->get(self::PREFIX . 'showAllOption', $salesChannelId);

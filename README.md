@@ -110,6 +110,7 @@ Die **Beschriftungs- und Darstellungs-Einstellungen** kannst du zusätzlich pro 
 | **Verbindungswort in der Überschrift** | Standard „für“. |
 | **Ausprägung „Passt zu allen Fahrzeugen“** | Z. B. „Alle Fahrzeuge“ in der Fahrzeug-Eigenschaft anlegen und an Öl, Werkzeug, Literatur und Universalteile vergeben. Diese Artikel erscheinen bei jedem gewählten Fahrzeug; die Ausprägung bekommt keine Kachel. Artikel ganz ohne Fahrzeug-Ausprägung verschwinden bei gewähltem Fahrzeug. |
 | **Fahrzeug per Link** | Jede Shop-Adresse mit `?fahrzeug=XM` (Name, gekürzter Name oder ID; `alle` = zurücksetzen) wählt das Fahrzeug und leitet auf dieselbe Adresse ohne Parameter weiter. |
+| **Filtergruppe 2 einklappen** | Zweite Fahrzeuggruppe (z. B. DS/ID/HY/Traction) hinter einem Aufklapper „Weitere Fahrzeuge“ statt dauerhaft in der Leiste. Beschriftung frei wählbar. |
 | **Leere Kategorien im Menü ausblenden** | Bei gewähltem Fahrzeug zeigen Haupt- und mobiles Menü nur Kategorien, die für dieses Fahrzeug Produkte haben (auch mit dynamischen Produktgruppen). Inhaltsseiten ohne Produkte, Links und Ordner bleiben stehen. |
 | **Beschriftung der „Alle"-Kachel** | Freier Text, z. B. `Alle` oder `Zurücksetzen`. Leer = Standardtext. |
 

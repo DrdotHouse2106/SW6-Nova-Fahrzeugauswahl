@@ -128,6 +128,20 @@
         </input-field>
 
         <input-field type="bool">
+            <name>collapseGroupB</name>
+            <label>Filtergruppe 2 einklappen</label>
+            <helpText>Zeigt die Fahrzeuge aus Filtergruppe 2 nicht dauerhaft, sondern hinter einem kleinen Aufklapper (z. B. „Weitere Fahrzeuge“). Ist ein Fahrzeug aus Gruppe 2 gewählt, ist der Bereich automatisch offen.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>collapseLabel</name>
+            <label>Beschriftung des Aufklappers</label>
+            <placeholder>Weitere Fahrzeuge</placeholder>
+            <helpText>Leer = „Weitere Fahrzeuge“.</helpText>
+        </input-field>
+
+        <input-field type="bool">
             <name>showActiveDescription</name>
             <label>Fahrzeug-Beschreibung anzeigen</label>
             <helpText>Zeigt einen Text-Block mit der Spezifikation des aktiven Fahrzeugs. Der Text wird pro Ausprägung im Custom-Field „Fahrzeug-Beschreibung“ gepflegt (Kataloge → Eigenschaften → Ausprägung → Reiter Zusatzfelder) oder per ERP-Sync befüllt.</helpText>
