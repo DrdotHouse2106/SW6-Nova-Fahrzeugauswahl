@@ -5,11 +5,17 @@ namespace Ulber\FahrzeugSchnellauswahl\Service;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Ulber\FahrzeugSchnellauswahl\Migration\Migration1788960000CreateVehicleDescriptionField;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 /**
@@ -32,7 +38,9 @@ class VehicleOptionLoader
 
     public function __construct(
         private readonly EntityRepository $propertyGroupOptionRepository,
-        private readonly EntityRepository $productRepository
+        private readonly Connection $connection,
+        private readonly CacheInterface $cache,
+        private readonly VehicleSwitcherConfig $config
     ) {
     }
 
@@ -145,15 +153,41 @@ class VehicleOptionLoader
             return [];
         }
 
-        // Über die Optionen selbst prüfen (Zuordnungstabelle product_property) statt über eine Aggregation
-        // auf Produkten: Die Terms-Aggregation lieferte bei vielen Eigenschaften keine Fahrzeug-Treffer.
-        $criteria = new Criteria($optionIds);
-        $criteria->setTitle('vehicle-switcher::used-options');
-        $criteria->addFilter(new EqualsFilter('productProperties.active', true));
-        $criteria->addFilter(new EqualsFilter('productProperties.visibilities.salesChannelId', $salesChannelId));
+        // Direkte Abfrage auf product_property statt DAL (die brauchte bei großen Katalogen 30 Sekunden),
+        // zwischengespeichert wie der Menüfilter (Standard 24 Stunden). Varianten erben über product.properties.
+        sort($optionIds);
+        $cacheKey = 'nova-vehicle-used-options-' . md5($salesChannelId . '|' . implode(',', $optionIds));
 
-        /** @var list<string> $ids */
-        $ids = $this->propertyGroupOptionRepository->searchIds($criteria, $context)->getIds();
+        try {
+            /** @var list<string> $ids */
+            $ids = $this->cache->get($cacheKey, function (ItemInterface $item) use ($optionIds, $salesChannelId): array {
+                $item->expiresAfter($this->config->getCategoryCacheHours($salesChannelId) * 3600);
+
+                return array_values(array_map('strval', $this->connection->fetchFirstColumn(
+                    'SELECT DISTINCT LOWER(HEX(pp.property_group_option_id))
+                    FROM product p
+                    LEFT JOIN product parent ON parent.id = p.parent_id AND parent.version_id = p.version_id
+                    INNER JOIN product_visibility pv ON pv.product_id = IFNULL(p.visibilities, p.id)
+                        AND pv.product_version_id = p.version_id
+                        AND pv.sales_channel_id = :salesChannelId
+                        AND pv.visibility >= :visibility
+                    INNER JOIN product_property pp ON pp.product_id = IFNULL(p.properties, p.id)
+                        AND pp.product_version_id = p.version_id
+                        AND pp.property_group_option_id IN (:optionIds)
+                    WHERE p.version_id = :version AND COALESCE(p.active, parent.active) = 1',
+                    [
+                        'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                        'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                        'optionIds' => Uuid::fromHexToBytesList($optionIds),
+                    ],
+                    ['optionIds' => ArrayParameterType::BINARY]
+                )));
+            });
+        } catch (\Throwable) {
+            // Im Zweifel nichts ausblenden
+            return [];
+        }
 
         return array_values(array_filter(
             $optionIds,

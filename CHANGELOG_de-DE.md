@@ -1,3 +1,6 @@
+# 1.12.5
+- Leistung: „Nur Fahrzeuge mit Produkten anzeigen“ prüft per direkter Datenbankabfrage und speichert das Ergebnis zwischen (gleiche Dauer wie die Menü-Prüfung, Standard 24 Stunden). Die bisherige Prüfung brauchte bei großen Katalogen rund 30 Sekunden – bei jedem ungecachten Seitenaufruf, auch ohne gewähltes Fahrzeug
+
 # 1.12.4
 - Fehlersuche: Der Kopfbereich zeigt im Seitenquelltext als HTML-Kommentar, wie lange Fahrzeugliste und Menüfilter gebraucht haben (Anzahl Prüfungen und Datenbankabfragen)
 

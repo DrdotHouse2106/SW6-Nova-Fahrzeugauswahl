@@ -1,3 +1,6 @@
+# 1.12.5
+- Performance: "only vehicles with products" uses a direct SQL query and is cached (was ~30 s on every uncached page)
+
 # 1.12.4
 - Diagnostics: header shows timings of vehicle list and menu filter as HTML comment
 
