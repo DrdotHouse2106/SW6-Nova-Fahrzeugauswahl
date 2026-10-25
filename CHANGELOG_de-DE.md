@@ -1,3 +1,7 @@
+# 1.12.3
+- Leistung: Kategorien mit **dynamischer Produktgruppe** werden jetzt in derselben einen Abfrage geprüft (über Shopwares Zuordnungstabelle Produktgruppe ↔ Produkt) statt jede einzeln – bei Kategoriebäumen aus dynamischen Produktgruppen dauerte der Kopfbereich mit neuem Fahrzeug über 30 Sekunden
+- Hinweis: Die geplante Aufgabe aus 1.12.2 wird erst mit diesem Update registriert
+
 # 1.12.2
 - Leistung: Die Menü-Prüfung „Leere Kategorien ausblenden“ nutzt eine direkte Datenbankabfrage statt der Shopware-Aggregation (die dauerte bei großen Katalogen 30 Sekunden und mehr je Fahrzeug)
 - Neu: Eine geplante Aufgabe rechnet die Prüfung stündlich für alle Fahrzeuge vor – auch der erste Aufruf nach einem Fahrzeugwechsel muss nicht mehr warten

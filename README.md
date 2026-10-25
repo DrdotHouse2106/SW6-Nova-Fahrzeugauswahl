@@ -149,7 +149,7 @@ automatisch als Kacheln.
 
 **Ursache:** Bis 1.12.0 prüfte „Leere Kategorien im Menü ausblenden“ jede Menükategorie mit einer eigenen Abfrage – bei mehreren hundert Kategorien dauerte der erste Aufruf zu lange
 
-**Lösung:** Ab 1.12.2 genügt eine schnelle Datenbankabfrage je Fahrzeug. Das Ergebnis wird zwischengespeichert, Standard 24 Stunden, einstellbar unter „Menü-Prüfung zwischenspeichern“. Die geplante Aufgabe `nova_fahrzeugauswahl.warm_category_cache` rechnet es zusätzlich stündlich für alle Fahrzeuge vor. Neue oder leer gewordene Kategorien erscheinen im Menü deshalb erst nach der nächsten Vorberechnung, sofort nach „Caches leeren“. Voraussetzung: Die geplanten Aufgaben laufen (Einstellungen → System → Geplante Aufgaben bzw. Cronjob/Worker).
+**Lösung:** Ab 1.12.3 genügt eine schnelle Datenbankabfrage je Fahrzeug, auch für Kategorien mit dynamischer Produktgruppe (über Shopwares Tabelle `product_stream_mapping`). Das Ergebnis wird zwischengespeichert, Standard 24 Stunden, einstellbar unter „Menü-Prüfung zwischenspeichern“. Die geplante Aufgabe `nova_fahrzeugauswahl.warm_category_cache` rechnet es zusätzlich stündlich für alle Fahrzeuge vor. Neue oder leer gewordene Kategorien erscheinen im Menü deshalb erst nach der nächsten Vorberechnung, sofort nach „Caches leeren“. Voraussetzung: Die geplanten Aufgaben laufen (Einstellungen → System → Geplante Aufgaben bzw. Cronjob/Worker). Fehlt die Aufgabe dort nach dem Update, registriert sie `bin/console scheduled-task:register` oder das nächste Plugin-Update.
 
 ### Alte Modell-Links (z. B. /BX/) zeigen eine leere Seite
 

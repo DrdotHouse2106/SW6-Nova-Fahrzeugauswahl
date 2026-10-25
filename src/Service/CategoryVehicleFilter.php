@@ -6,15 +6,11 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
-use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -34,8 +30,6 @@ class CategoryVehicleFilter
     private array $categorySets = [];
 
     public function __construct(
-        private readonly SalesChannelRepository $productRepository,
-        private readonly AbstractProductStreamBuilder $streamBuilder,
         private readonly CacheInterface $cache,
         private readonly Connection $connection,
         private readonly VehicleSwitcherConfig $config
@@ -97,27 +91,9 @@ class CategoryVehicleFilter
             return $this->memo[$key];
         }
 
-        $streamId = $category->getProductStreamId();
-        if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && $streamId !== null) {
-            // Dynamische Produktgruppe: einzeln prüfen (selten)
-            $criteria = new Criteria();
-            $criteria->setLimit(1);
-            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
-            $criteria->setTitle('vehicle-switcher::category-has-products');
-            $this->streamBuilder->enrichCriteria($criteria, $streamId, $context->getContext());
-            if ($optionIds !== null) {
-                $criteria->addFilter(new EqualsAnyFilter('product.properties.id', $optionIds));
-            }
-            try {
-                $result = $this->productRepository->searchIds($criteria, $context)->getIds() !== [];
-            } catch (\Throwable) {
-                $result = true;
-            }
-        } else {
-            // Feste Zuordnung: EINE Sammelabfrage für alle Kategorien statt einer Abfrage je Kategorie
-            $set = $this->categoriesWithProducts($optionIds, $context);
-            $result = $set === null || isset($set[$category->getId()]);
-        }
+        // EINE Sammelabfrage für alle Kategorien (feste Zuordnung und dynamische Produktgruppen)
+        $set = $this->categoriesWithProducts($optionIds, $context);
+        $result = $set === null || isset($set[$category->getId()]);
 
         return $this->memo[$key] = $result;
     }
@@ -196,14 +172,12 @@ class CategoryVehicleFilter
     private function queryCategoryIds(?array $optionIds, string $salesChannelId): array
     {
         // Varianten erben Eigenschaften und Sichtbarkeiten über die Spalten product.properties / product.visibilities
-        $sql = 'SELECT DISTINCT LOWER(HEX(pct.category_id))
-            FROM product p
+        $joins = '
             LEFT JOIN product parent ON parent.id = p.parent_id AND parent.version_id = p.version_id
             INNER JOIN product_visibility pv ON pv.product_id = IFNULL(p.visibilities, p.id)
                 AND pv.product_version_id = p.version_id
                 AND pv.sales_channel_id = :salesChannelId
-                AND pv.visibility >= :visibility
-            INNER JOIN product_category_tree pct ON pct.product_id = p.id AND pct.product_version_id = p.version_id';
+                AND pv.visibility >= :visibility';
 
         $params = [
             'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -213,7 +187,7 @@ class CategoryVehicleFilter
         $types = [];
 
         if ($optionIds !== null) {
-            $sql .= '
+            $joins .= '
             INNER JOIN product_property pp ON pp.product_id = IFNULL(p.properties, p.id)
                 AND pp.product_version_id = p.version_id
                 AND pp.property_group_option_id IN (:optionIds)';
@@ -221,8 +195,26 @@ class CategoryVehicleFilter
             $types['optionIds'] = ArrayParameterType::BINARY;
         }
 
-        $sql .= '
+        $where = '
             WHERE p.version_id = :version AND COALESCE(p.active, parent.active) = 1';
+
+        // Feste Zuordnung (inkl. Elternkategorien) …
+        $sql = 'SELECT DISTINCT LOWER(HEX(pct.category_id))
+            FROM product p
+            INNER JOIN product_category_tree pct ON pct.product_id = p.id AND pct.product_version_id = p.version_id'
+            . $joins . $where;
+
+        // … und dynamische Produktgruppen über Shopwares Zuordnungstabelle product_stream_mapping
+        $sql .= '
+            UNION
+            SELECT DISTINCT LOWER(HEX(c.id))
+            FROM category c
+            INNER JOIN product_stream_mapping psm ON psm.product_stream_id = c.product_stream_id
+            INNER JOIN product p ON p.id = psm.product_id AND p.version_id = psm.product_version_id'
+            . $joins . $where . '
+                AND c.version_id = :version
+                AND c.product_assignment_type = :streamType';
+        $params['streamType'] = CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM;
 
         return array_values(array_map('strval', $this->connection->fetchFirstColumn($sql, $params, $types)));
     }

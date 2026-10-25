@@ -1,3 +1,6 @@
+# 1.12.3
+- Performance: categories with dynamic product groups are checked in the same single query (via product_stream_mapping) instead of one query each
+
 # 1.12.2
 - Performance: empty-category check uses a direct SQL query instead of the DAL aggregation (30 s+ per vehicle on large catalogues)
 - New: scheduled task pre-computes the check hourly for all vehicles

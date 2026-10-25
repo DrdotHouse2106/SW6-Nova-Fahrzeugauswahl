@@ -1,7 +1,7 @@
 {
     "name": "ulber/fahrzeug-schnellauswahl",
     "description": "Globale horizontale Fahrzeug-Schnellauswahl (Horizontal Vehicle Switcher) für die Shopware 6.6 Storefront",
-    "version": "1.12.2",
+    "version": "1.12.3",
     "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
