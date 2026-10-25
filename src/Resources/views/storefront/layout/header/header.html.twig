@@ -11,6 +11,9 @@
     {% set vehicleSwitcher = header.extensions.vehicleSwitcher ?? null %}
     {% set vehicleSwitcherStatus = header.extensions.vehicleSwitcherStatus ?? null %}
     {% if vehicleSwitcherStatus %}<!-- Nova Fahrzeugauswahl: {{ vehicleSwitcherStatus.get('text') }} -->{% endif %}
+    {% for timingKey in ['vehicleSwitcherOptionsTiming', 'vehicleSwitcherTiming'] %}
+        {% if header.extensions[timingKey] is defined %}<!-- Nova Fahrzeugauswahl: {{ header.extensions[timingKey].get('text') }} -->{% endif %}
+    {% endfor %}
 
     {% if vehicleSwitcher and vehicleSwitcher.options.count > 0 %}
         {% sw_include '@Storefront/storefront/component/vehicle-switcher/vehicle-switcher.html.twig' with {

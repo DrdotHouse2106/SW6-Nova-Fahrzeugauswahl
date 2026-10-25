@@ -2,6 +2,7 @@
 
 namespace Ulber\FahrzeugSchnellauswahl\Subscriber;
 
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedEvent;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedEvent;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
@@ -47,6 +48,16 @@ class NavigationTreeSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $start = microtime(true);
         $this->categoryFilter->filterTree($tree, $this->config->getFilterOptionIds($optionId, $salesChannelId), $context);
+        $stats = $this->categoryFilter->getStats();
+
+        $pagelet->addExtension('vehicleSwitcherTiming', new ArrayStruct(['text' => \sprintf(
+            'Menüfilter %d ms, %d Kategorieprüfungen, %d Datenbankabfragen (%d ms)',
+            (microtime(true) - $start) * 1000,
+            $stats['categories'],
+            $stats['queries'],
+            $stats['queryMs']
+        )]));
     }
 }

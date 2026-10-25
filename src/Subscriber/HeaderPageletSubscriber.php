@@ -48,6 +48,7 @@ class HeaderPageletSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $start = microtime(true);
         $options = $this->optionLoader->load(
             $groupIds,
             $this->config->getMaxOptions($salesChannelId),
@@ -56,6 +57,10 @@ class HeaderPageletSubscriber implements EventSubscriberInterface
             $this->config->onlyWithProducts($salesChannelId) ? $salesChannelId : null,
             $event->getContext()
         );
+
+        $event->getPagelet()->addExtension('vehicleSwitcherOptionsTiming', new ArrayStruct([
+            'text' => \sprintf('Fahrzeugliste %d ms', (microtime(true) - $start) * 1000),
+        ]));
 
         if ($options->count() === 0) {
             $this->status($event, 'keine anzeigbaren Ausprägungen (Gruppe leer, alle ausgeblendet oder ohne sichtbare Produkte im Verkaufskanal)');

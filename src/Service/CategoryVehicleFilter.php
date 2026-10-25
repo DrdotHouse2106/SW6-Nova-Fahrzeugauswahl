@@ -26,6 +26,9 @@ class CategoryVehicleFilter
     /** @var array<string, bool> */
     private array $memo = [];
 
+    /** Messwerte für den HTML-Kommentar im Header (Fehlersuche bei Ladezeiten) */
+    private array $stats = ['categories' => 0, 'queries' => 0, 'queryMs' => 0.0];
+
     /** @var array<string, array<string, true>> Kategorie-IDs mit Produkten je Fahrzeug-Auswahl */
     private array $categorySets = [];
 
@@ -39,6 +42,14 @@ class CategoryVehicleFilter
     /**
      * @param list<string> $optionIds gewähltes Fahrzeug plus „Passt zu allen Fahrzeugen“
      */
+    /**
+     * @return array{categories: int, queries: int, queryMs: float}
+     */
+    public function getStats(): array
+    {
+        return $this->stats;
+    }
+
     public function filterTree(Tree $tree, array $optionIds, SalesChannelContext $context): void
     {
         $tree->setTree($this->filterItems($tree->getTree(), $optionIds, $context));
@@ -87,6 +98,7 @@ class CategoryVehicleFilter
     private function hasProducts(CategoryEntity $category, ?array $optionIds, SalesChannelContext $context): bool
     {
         $key = $category->getId() . '-' . ($optionIds === null ? 'all' : implode(',', $optionIds));
+        ++$this->stats['categories'];
         if (isset($this->memo[$key])) {
             return $this->memo[$key];
         }
@@ -199,6 +211,9 @@ class CategoryVehicleFilter
             WHERE p.version_id = :version AND COALESCE(p.active, parent.active) = 1';
 
         // Feste Zuordnung (inkl. Elternkategorien) …
+        ++$this->stats['queries'];
+        $start = microtime(true);
+
         $sql = 'SELECT DISTINCT LOWER(HEX(pct.category_id))
             FROM product p
             INNER JOIN product_category_tree pct ON pct.product_id = p.id AND pct.product_version_id = p.version_id'
@@ -216,6 +231,9 @@ class CategoryVehicleFilter
                 AND c.product_assignment_type = :streamType';
         $params['streamType'] = CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM;
 
-        return array_values(array_map('strval', $this->connection->fetchFirstColumn($sql, $params, $types)));
+        $ids = array_values(array_map('strval', $this->connection->fetchFirstColumn($sql, $params, $types)));
+        $this->stats['queryMs'] += (microtime(true) - $start) * 1000;
+
+        return $ids;
     }
 }

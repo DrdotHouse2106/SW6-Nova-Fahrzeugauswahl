@@ -1,3 +1,6 @@
+# 1.12.4
+- Diagnostics: header shows timings of vehicle list and menu filter as HTML comment
+
 # 1.12.3
 - Performance: categories with dynamic product groups are checked in the same single query (via product_stream_mapping) instead of one query each
 
