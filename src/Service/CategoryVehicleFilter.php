@@ -148,21 +148,44 @@ class CategoryVehicleFilter
 
     /**
      * Rechnet die Liste neu und legt sie in den Zwischenspeicher (geplante Aufgabe), damit kein
-     * Seitenaufruf selbst rechnen muss.
+     * Seitenaufruf selbst rechnen muss. Neu gerechnet wird nur, wenn die letzte Vorwärmung länger als
+     * Speicherdauer minus 2 Stunden zurückliegt – nicht bei jedem stündlichen Lauf.
      *
      * @param list<string>|null $optionIds null = alle Produkte
+     *
+     * @return bool true = neu berechnet
      */
-    public function warmUp(string $salesChannelId, ?array $optionIds): void
+    public function warmUp(string $salesChannelId, ?array $optionIds): bool
     {
-        $ids = $this->queryCategoryIds($optionIds, $salesChannelId);
         $key = $this->cacheKey($salesChannelId, $optionIds);
+        $ttl = $this->config->getCategoryCacheHours($salesChannelId) * 3600;
 
-        $this->cache->delete($key);
-        $this->cache->get($key, function (ItemInterface $item) use ($ids, $salesChannelId): array {
-            $item->expiresAfter($this->config->getCategoryCacheHours($salesChannelId) * 3600);
+        $due = false;
+        $this->cache->get($key . '-warm', static function (ItemInterface $item) use ($ttl, &$due): int {
+            $item->expiresAfter(max(3600, $ttl - 7200));
+            $due = true;
 
-            return $ids;
+            return time();
         });
+
+        if (!$due) {
+            return false;
+        }
+
+        // Beta INF erzwingt die Neuberechnung ohne Lücke zwischen Löschen und Neuanlegen
+        try {
+            $this->cache->get($key, function (ItemInterface $item) use ($optionIds, $salesChannelId, $ttl): array {
+                $item->expiresAfter($ttl);
+
+                return $this->queryCategoryIds($optionIds, $salesChannelId);
+            }, \INF);
+        } catch (\Throwable $e) {
+            $this->cache->delete($key . '-warm');
+
+            throw $e;
+        }
+
+        return true;
     }
 
     /**

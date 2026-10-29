@@ -41,7 +41,7 @@ class NavigationTreeSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $optionId = $this->selectionStorage->get();
+        $optionId = $this->selectionStorage->get($salesChannelId);
         $pagelet = $event->getPagelet();
 
         if ($optionId === null || !method_exists($pagelet, 'getNavigation') || ($tree = $pagelet->getNavigation()) === null) {

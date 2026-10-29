@@ -3,6 +3,7 @@
 namespace Ulber\FahrzeugSchnellauswahl\Service;
 
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -17,16 +18,25 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * nur akzeptiert, wenn er eine gültige UUID ist. Sonst würde jeder beliebige
  * Wert eine eigene HTTP-Cache-Variante erzeugen (Cache-Flooding) und als
  * ungültige ID im DAL-Filter zu einer Exception statt zur Produktliste führen.
+ * Zusätzlich muss die ID zu den Filtergruppen des Verkaufskanals gehören (VehicleOptionValidator),
+ * sonst erzeugt jede zufällige UUID eigene Cache-Einträge.
  */
 class VehicleSelectionStorage
 {
     public const COOKIE_NAME = 'vehicle-switcher-option';
 
+    private ?VehicleOptionValidator $validator = null;
+
     public function __construct(private readonly RequestStack $requestStack)
     {
     }
 
-    public function get(): ?string
+    public function setOptionValidator(VehicleOptionValidator $validator): void
+    {
+        $this->validator = $validator;
+    }
+
+    public function get(?string $salesChannelId = null): ?string
     {
         $request = $this->requestStack->getMainRequest() ?? $this->requestStack->getCurrentRequest();
 
@@ -34,7 +44,25 @@ class VehicleSelectionStorage
             return null;
         }
 
-        return self::fromRequest($request);
+        return $this->validFromRequest($request, $salesChannelId);
+    }
+
+    /**
+     * Wie fromRequest(), aber nur IDs, die zu den Fahrzeug-Optionen des Verkaufskanals gehören.
+     */
+    public function validFromRequest(Request $request, ?string $salesChannelId = null): ?string
+    {
+        $optionId = self::fromRequest($request);
+        if ($optionId === null || $this->validator === null) {
+            return $optionId;
+        }
+
+        $salesChannelId ??= $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        if (!\is_string($salesChannelId) || !Uuid::isValid($salesChannelId)) {
+            return $optionId;
+        }
+
+        return $this->validator->isValid($optionId, $salesChannelId) ? $optionId : null;
     }
 
     /**

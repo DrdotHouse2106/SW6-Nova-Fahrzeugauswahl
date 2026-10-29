@@ -7,7 +7,7 @@
             class="vehicle-switcher__item{% if option.id == activeOptionId %} is-active{% endif %}"
             data-vehicle-switcher-item
             data-option-id="{{ option.id }}"
-            title="{{ fullName|sw_sanitize }}"
+            title="{{ fullName|striptags }}"
             aria-pressed="{{ option.id == activeOptionId ? 'true' : 'false' }}">
         {{ label|sw_sanitize }}
     </button>
@@ -33,7 +33,7 @@
     {% if moreOptions.count > 0 %}
         <details class="vehicle-switcher__more{% if modifier|default('') %} vehicle-switcher__more--{{ modifier }}{% endif %}"{% if more.get('open') %} open{% endif %}>
             <summary class="vehicle-switcher__more-toggle">{{ more.get('label')|sw_sanitize }}</summary>
-            <div class="vehicle-switcher__track vehicle-switcher__track--more" role="group" aria-label="{{ more.get('label')|sw_sanitize }}">
+            <div class="vehicle-switcher__track vehicle-switcher__track--more" role="group" aria-label="{{ more.get('label')|striptags }}">
                 {% for option in moreOptions %}
                     {{ vsw.option_pill(option, activeOptionId, displayLabels) }}
                 {% endfor %}
@@ -72,7 +72,7 @@
                                 {% endif %}
 
                                 <div class="vehicle-switcher__track" role="group"
-                                     aria-label="{{ groupLabel is not empty ? groupLabel|sw_sanitize : 'vehicle-switcher.ariaLabel'|trans|sw_sanitize }}">
+                                     aria-label="{{ (groupLabel is not empty ? groupLabel : 'vehicle-switcher.ariaLabel'|trans)|striptags }}">
                                     {% for option in groupOptions %}
                                         {{ vsw.option_pill(option, activeOptionId, displayLabels) }}
                                     {% endfor %}
@@ -88,7 +88,7 @@
             {% else %}
                 {% block component_vehicle_switcher_bar %}
                     <div class="vehicle-switcher__track" role="group"
-                         aria-label="{{ 'vehicle-switcher.ariaLabel'|trans|sw_sanitize }}">
+                         aria-label="{{ 'vehicle-switcher.ariaLabel'|trans|striptags }}">
 
                         {% if showAllOption %}
                             {{ vsw.all_pill(activeOptionId, allOptionLabel) }}

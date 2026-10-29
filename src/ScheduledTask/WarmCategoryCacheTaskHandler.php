@@ -21,7 +21,7 @@ class WarmCategoryCacheTaskHandler extends ScheduledTaskHandler
 {
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        LoggerInterface $logger,
+        private readonly LoggerInterface $logger,
         private readonly EntityRepository $salesChannelRepository,
         private readonly EntityRepository $propertyGroupOptionRepository,
         private readonly VehicleSwitcherConfig $config,
@@ -47,16 +47,37 @@ class WarmCategoryCacheTaskHandler extends ScheduledTaskHandler
                 continue;
             }
 
-            $this->categoryFilter->warmUp($salesChannelId, null);
-
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsAnyFilter('groupId', $groupIds));
 
             /** @var list<string> $optionIds */
             $optionIds = $this->propertyGroupOptionRepository->searchIds($criteria, $context)->getIds();
 
-            foreach ($optionIds as $optionId) {
-                $this->categoryFilter->warmUp($salesChannelId, $this->config->getFilterOptionIds($optionId, $salesChannelId));
+            // Ein Fehler (z. B. Datenbank-Zeitüberschreitung) bricht nicht die Vorwärmung der übrigen Fahrzeuge ab
+            $warmed = 0;
+            $failed = 0;
+            foreach ([null, ...$optionIds] as $optionId) {
+                try {
+                    $warmed += (int) $this->categoryFilter->warmUp(
+                        $salesChannelId,
+                        $optionId === null ? null : $this->config->getFilterOptionIds($optionId, $salesChannelId)
+                    );
+                } catch (\Throwable $e) {
+                    if ($failed++ === 0) {
+                        $this->logger->warning('Nova Fahrzeugauswahl: Vorwärmen des Menü-Zwischenspeichers fehlgeschlagen: {message}', [
+                            'message' => $e->getMessage(),
+                            'salesChannelId' => $salesChannelId,
+                        ]);
+                    }
+                }
+            }
+
+            if ($warmed > 0 || $failed > 0) {
+                $this->logger->info('Nova Fahrzeugauswahl: Menü-Zwischenspeicher vorgewärmt', [
+                    'salesChannelId' => $salesChannelId,
+                    'neuBerechnet' => $warmed,
+                    'fehlgeschlagen' => $failed,
+                ]);
             }
         }
     }

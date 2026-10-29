@@ -2,6 +2,7 @@
 
 namespace Ulber\FahrzeugSchnellauswahl\Service;
 
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -52,7 +53,7 @@ class VehicleSwitcherConfig
         foreach (['propertyGroupIdA', 'propertyGroupIdB'] as $key) {
             $value = $this->systemConfigService->get(self::PREFIX . $key, $salesChannelId);
 
-            if (\is_string($value) && $value !== '') {
+            if (\is_string($value) && Uuid::isValid($value)) {
                 $ids[] = $value;
             }
         }
@@ -75,7 +76,7 @@ class VehicleSwitcherConfig
 
         // Ausprägungen „Passt zu allen Fahrzeugen“ bekommen nie eine Kachel
         return array_values(array_unique(array_merge(
-            array_filter($value, static fn ($id): bool => \is_string($id) && $id !== ''),
+            self::validIds($value),
             $this->getUniversalOptionIds($salesChannelId)
         )));
     }
@@ -93,7 +94,27 @@ class VehicleSwitcherConfig
             return [];
         }
 
-        return array_values(array_filter($value, static fn ($id): bool => \is_string($id) && $id !== ''));
+        return self::validIds($value);
+    }
+
+    /**
+     * Nur gültige UUIDs – ungültige Einträge aus der Konfiguration würden sonst
+     * SQL-Parameter (Uuid::fromHexToBytesList) und damit Menüfilter und geplante Aufgabe scheitern lassen.
+     *
+     * @param array<mixed> $value
+     *
+     * @return list<string>
+     */
+    private static function validIds(array $value): array
+    {
+        $ids = [];
+        foreach ($value as $id) {
+            if (\is_string($id) && Uuid::isValid($id)) {
+                $ids[] = $id;
+            }
+        }
+
+        return array_values(array_unique($ids));
     }
 
     /**

@@ -1,3 +1,11 @@
+# 1.14.0
+- Security/performance: the vehicle cookie is checked against the options of the configured property groups before it is used in the HTTP cache key, menu cache or product filter; random UUIDs no longer create cache entries
+- New: "Diagnostic comments in page source" (off by default); status/timing HTML comments only appear when enabled
+- Pill tooltip and aria labels use striptags instead of sw_sanitize
+- Warm-up task only recalculates entries older than cache lifetime minus 2 hours, without a delete/get gap; one failing vehicle no longer stops the rest
+- Invalid IDs in the configuration are ignored
+- `?fahrzeug[]=…` no longer returns HTTP 400
+
 # 1.13.0
 - More compact bar: "More vehicles" toggle inline at the end of the row on tablet/desktop, slightly tighter pills
 - New: strip a word at the end of pill labels (e.g. "Umbau")

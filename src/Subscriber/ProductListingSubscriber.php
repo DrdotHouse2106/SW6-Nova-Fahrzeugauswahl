@@ -39,7 +39,7 @@ class ProductListingSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $optionId = $this->selectionStorage->get();
+        $optionId = $this->selectionStorage->get($salesChannelId);
 
         if ($optionId === null) {
             return;

@@ -68,7 +68,7 @@ class HeaderPageletSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $activeId = $this->selectionStorage->get();
+        $activeId = $this->selectionStorage->get($salesChannelId);
 
         // Aktive Option muss zu den aktuell sichtbaren Optionen passen,
         // sonst kann der Kunde sie nie wieder abwählen.

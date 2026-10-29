@@ -49,9 +49,11 @@ class VehicleQuerySubscriber implements EventSubscriberInterface
             return;
         }
 
-        $value = trim((string) $request->query->get(self::PARAM));
-        $reset = \in_array(VehicleSwitcherConfig::matchKey($value), ['', 'alle', 'all', 'allefahrzeuge'], true);
-        $optionId = $reset ? null : $this->resolve($value, $context);
+        // ?fahrzeug[]=… ist kein gültiger Wert (InputBag::get() würde mit HTTP 400 abbrechen)
+        $raw = $request->query->all()[self::PARAM] ?? '';
+        $value = \is_string($raw) ? trim($raw) : null;
+        $reset = $value !== null && \in_array(VehicleSwitcherConfig::matchKey($value), ['', 'alle', 'all', 'allefahrzeuge'], true);
+        $optionId = $reset || $value === null ? null : $this->resolve($value, $context);
 
         // Unbekannter Wert: Parameter still entfernen, Auswahl unverändert lassen
         $query = $request->query->all();

@@ -221,4 +221,14 @@
             <helpText>Leer lassen für den Standardtext. Eigenen Text eintragen, z. B. „Alle“ oder „Zurücksetzen“.</helpText>
         </input-field>
     </card>
+
+    <card>
+        <title>Fehlersuche</title>
+        <input-field type="bool">
+            <name>diagnosticComments</name>
+            <label>Diagnose im Seitenquelltext</label>
+            <helpText>Schreibt Status (z. B. „keine Filtergruppe eingestellt“), Anzahl der Fahrzeuge und Ladezeiten als HTML-Kommentar in den Header. Nur zur Fehlersuche einschalten – die Angaben sind für alle Besucher sichtbar. Standard: aus.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+    </card>
 </config>

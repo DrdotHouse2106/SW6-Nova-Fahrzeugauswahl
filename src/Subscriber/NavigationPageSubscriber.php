@@ -38,7 +38,7 @@ class NavigationPageSubscriber implements EventSubscriberInterface
         }
 
         $vehicle = null;
-        $activeId = $this->selectionStorage->get();
+        $activeId = $this->selectionStorage->get($salesChannelId);
         $groupIds = $this->config->getPropertyGroupIds($salesChannelId);
 
         if ($activeId !== null && $groupIds !== []) {

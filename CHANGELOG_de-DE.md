@@ -1,3 +1,11 @@
+# 1.14.0
+- Sicherheit/Leistung: Das Fahrzeug-Cookie wird gegen die Ausprägungen der eingestellten Filtergruppen des Verkaufskanals geprüft, bevor es in den HTTP-Cache-Schlüssel, den Menü-Zwischenspeicher oder den Produktfilter gelangt. Beliebige UUIDs im Cookie erzeugen keine eigenen Cache-Einträge mehr. Die Liste gültiger Ausprägungen liegt im Zwischenspeicher und wird beim Ändern von Ausprägungen sofort erneuert
+- Neu: **Fehlersuche → Diagnose im Seitenquelltext** (Standard aus). Die HTML-Kommentare mit Status, Anzahl der Fahrzeuge und Ladezeiten erscheinen nur noch, wenn das eingeschaltet ist
+- Tooltip und Bildschirmleser-Beschriftungen der Kacheln ohne HTML (striptags statt sw_sanitize in Attributen)
+- Geplante Aufgabe „Menü-Zwischenspeicher vorwärmen“ rechnet nur noch neu, wenn die letzte Berechnung länger als Speicherdauer minus 2 Stunden zurückliegt (statt stündlich alles), ohne Lücke zwischen Löschen und Neuanlegen; ein Fehler bei einem Fahrzeug bricht die übrigen nicht mehr ab
+- Ungültige IDs in der Konfiguration (Filtergruppen, ausgeblendete und „Passt zu allen“-Ausprägungen) werden ignoriert statt Menüfilter und geplante Aufgabe scheitern zu lassen
+- `?fahrzeug[]=…` liefert keinen HTTP-Fehler 400 mehr, sondern wird wie ein unbekannter Wert behandelt
+
 # 1.13.0
 - Leiste kompakter: „Weitere Fahrzeuge“ steht ab Tablet-Breite am Ende der Kachelreihe statt in einer eigenen Zeile; Kacheln mit etwas weniger Innen- und Zwischenabstand. Am Handy bleibt der Aufklapper unter der seitlich scrollenden Leiste
 - Neu: **Wortende in den Kacheln ausblenden** – z. B. „Umbau“: aus „Burton Umbau“ wird „Burton“ (nur Anzeige, voller Name im Tooltip)

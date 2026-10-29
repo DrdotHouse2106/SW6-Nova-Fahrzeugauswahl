@@ -148,7 +148,7 @@ automatisch als Kacheln.
 
 ### Zeitüberschreitung (504) nach dem Cache-Leeren
 
-**Messen:** Im Seitenquelltext stehen im Kopfbereich HTML-Kommentare „Nova Fahrzeugauswahl: Fahrzeugliste … ms“ und „Menüfilter … ms“.
+**Messen:** Unter *Fehlersuche* „Diagnose im Seitenquelltext“ einschalten (ab 1.14.0, Standard aus) – dann stehen im Kopfbereich HTML-Kommentare „Nova Fahrzeugauswahl: Fahrzeugliste … ms“ und „Menüfilter … ms“. Danach wieder ausschalten.
 
 **Ursache 2 (bis 1.12.4):** „Nur Fahrzeuge mit Produkten anzeigen“ prüfte über Shopwares Datenschicht – bei FranceTec rund 30 Sekunden für jeden ungecachten Kopfbereich. Ab 1.12.5 direkte Abfrage mit Zwischenspeicher.
 
@@ -202,7 +202,7 @@ automatisch als Kacheln.
 
 **Ursache:** Freischaltung, Filtergruppe oder Ausprägungen passen nicht
 
-**Lösung:** Seitenquelltext öffnen (Strg+U) und nach „Nova Fahrzeugauswahl:“ suchen – der Kommentar nennt den Grund (ab 1.8.3)
+**Lösung:** Unter *Fehlersuche* „Diagnose im Seitenquelltext“ einschalten (ab 1.14.0), Seitenquelltext öffnen (Strg+U) und nach „Nova Fahrzeugauswahl:“ suchen – der Kommentar nennt den Grund. Danach wieder ausschalten
 
 ### Kachel-Leiste erscheint nicht, obwohl der Verkaufskanal freigeschaltet ist
 
