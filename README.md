@@ -150,7 +150,7 @@ automatisch als Kacheln.
 
 **Messen:** Unter *Fehlersuche* „Diagnose im Seitenquelltext“ einschalten (ab 1.14.0, Standard aus) – dann stehen im Kopfbereich HTML-Kommentare „Nova Fahrzeugauswahl: Fahrzeugliste … ms“ und „Menüfilter … ms“. Danach wieder ausschalten.
 
-**Ursache 2 (bis 1.12.4):** „Nur Fahrzeuge mit Produkten anzeigen“ prüfte über Shopwares Datenschicht – bei FranceTec rund 30 Sekunden für jeden ungecachten Kopfbereich. Ab 1.12.5 direkte Abfrage mit Zwischenspeicher.
+**Ursache 2 (bis 1.12.4):** „Nur Fahrzeuge mit Produkten anzeigen“ prüfte über Shopwares Datenschicht – in einem Shop mit vielen Fahrzeugen rund 30 Sekunden für jeden ungecachten Kopfbereich. Ab 1.12.5 direkte Abfrage mit Zwischenspeicher.
 
 **Ursache:** Bis 1.12.0 prüfte „Leere Kategorien im Menü ausblenden“ jede Menükategorie mit einer eigenen Abfrage – bei mehreren hundert Kategorien dauerte der erste Aufruf zu lange
 
@@ -232,7 +232,7 @@ Bitte beachtet: Ich bin kein Profi-Entwickler, das Projekt ist mein Hobby. Eine 
 ist deshalb kein Supportvertrag – Support, Reaktionszeiten oder Gewährleistung kann ich nicht
 anbieten. Wünsche und Verbesserungsvorschläge nehme ich aber gerne mit auf.
 
-Kontakt: [info@francetec.de](mailto:info@francetec.de)
+Kontakt: bitte über ein Issue in diesem Repository.
 
 #### Unterstützer
 

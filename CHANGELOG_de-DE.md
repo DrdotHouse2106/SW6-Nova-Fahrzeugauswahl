@@ -1,3 +1,7 @@
+# 1.14.1
+- Lizenz auf **MIT** umgestellt (wie alle Nova-Plugins; composer.json nannte schon MIT, die LICENSE-Datei war noch GPL-3.0)
+- README: Kontakt über GitHub-Issues
+
 # 1.14.0
 - Sicherheit/Leistung: Das Fahrzeug-Cookie wird gegen die Ausprägungen der eingestellten Filtergruppen des Verkaufskanals geprüft, bevor es in den HTTP-Cache-Schlüssel, den Menü-Zwischenspeicher oder den Produktfilter gelangt. Beliebige UUIDs im Cookie erzeugen keine eigenen Cache-Einträge mehr. Die Liste gültiger Ausprägungen liegt im Zwischenspeicher und wird beim Ändern von Ausprägungen sofort erneuert
 - Neu: **Fehlersuche → Diagnose im Seitenquelltext** (Standard aus). Die HTML-Kommentare mit Status, Anzahl der Fahrzeuge und Ladezeiten erscheinen nur noch, wenn das eingeschaltet ist

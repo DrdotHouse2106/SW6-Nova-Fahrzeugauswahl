@@ -1,3 +1,7 @@
+# 1.14.1
+- Licence changed to **MIT** (like all Nova plugins; composer.json already said MIT, the LICENSE file was still GPL-3.0)
+- README: contact via GitHub issues
+
 # 1.14.0
 - Security/performance: the vehicle cookie is checked against the options of the configured property groups before it is used in the HTTP cache key, menu cache or product filter; random UUIDs no longer create cache entries
 - New: "Diagnostic comments in page source" (off by default); status/timing HTML comments only appear when enabled

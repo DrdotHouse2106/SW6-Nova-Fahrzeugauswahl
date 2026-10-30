@@ -141,7 +141,7 @@ Please note: I'm not a professional developer – this project is a hobby. Your 
 therefore isn't a support contract; I can't offer support, response times or warranty. Feature requests
 and suggestions for improvement are always welcome, though.
 
-Contact: [info@francetec.de](mailto:info@francetec.de)
+Contact: please open an issue in this repository.
 
 #### Supporters
 
