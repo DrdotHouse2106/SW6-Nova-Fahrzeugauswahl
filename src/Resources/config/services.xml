@@ -28,6 +28,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Ulber\FahrzeugSchnellauswahl\Service\VehicleSwitcherConfig"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Ulber\FahrzeugSchnellauswahl\Subscriber\HeaderPageletSubscriber">

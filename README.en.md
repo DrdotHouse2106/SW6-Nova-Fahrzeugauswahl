@@ -4,7 +4,7 @@
 
 > Die deutsche Fassung ist das Original: [README.md](README.md)
 
-Lightweight Shopware 6.6+ plugin for a global, horizontal vehicle quick switcher in
+Lightweight Shopware 6.7 plugin for a global, horizontal vehicle quick switcher in
 the storefront header. No dropdown – vehicles are shown as tiles / pills side by side.
 Single select per click, applied globally across every category.
 
@@ -119,7 +119,7 @@ pills automatically.
 
 - The filter is applied server-side via the session → the page reloads once after a click.
 - There is always **exactly one** vehicle active or none (`""` = "All vehicles").
-- The cookie value is only accepted server-side if it is a valid UUID (`VehicleSelectionStorage::sanitize`). Invalid values are ignored and never reach the HTTP cache key or the product filter.
+- The cookie value is only accepted server-side if it is a valid UUID (`VehicleSelectionStorage::sanitize`). Invalid values are ignored and never reach the HTTP cache key or the product filter. The ID must also be an option of the configured property groups: product filter and menu check against the groups of the sales channel, the HTTP cache key (built by Shopware before the sales channel is known) against the options of all property groups configured in any sales channel. Random UUIDs therefore do not create separate pages in the HTTP cache. If cache or database are unavailable, only the format check applies.
 - The vehicle description (custom field) is rendered with `sw_sanitize`, not `raw`.
 - If the option stored in the session is not (or no longer) part of the currently
   configured groups it is ignored, so the customer never gets stuck in an empty filter.

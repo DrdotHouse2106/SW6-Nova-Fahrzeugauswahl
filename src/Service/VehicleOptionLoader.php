@@ -17,15 +17,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * Lädt die Fahrzeug-Optionen der konfigurierten Filtergruppen.
  * Die Reihenfolge der Gruppen entspricht der Konfigurations-Reihenfolge
  * (Filtergruppe 1, dann Filtergruppe 2) – nicht der property_group.position.
+ *
+ * Ergebnisse werden je Request gemerkt: Header, Footer und Seiten-Subscriber fragen mit denselben Werten an.
  */
-class VehicleOptionLoader
+class VehicleOptionLoader implements ResetInterface
 {
     private bool $lastCheckEmpty = false;
+
+    /** @var array<string, array{0: PropertyGroupOptionCollection, 1: bool}> */
+    private array $memo = [];
 
     /**
      * true, wenn „Nur Fahrzeuge mit Produkten“ beim letzten Laden keinen einzigen Treffer fand
@@ -64,6 +70,46 @@ class VehicleOptionLoader
             return new PropertyGroupOptionCollection();
         }
 
+        $memoKey = md5(serialize([
+            $groupIds,
+            $limit,
+            $sortMode,
+            $hiddenIds,
+            $productSalesChannelId,
+            $context->getLanguageIdChain(),
+            $context->getVersionId(),
+        ]));
+
+        if (isset($this->memo[$memoKey])) {
+            [$options, $this->lastCheckEmpty] = $this->memo[$memoKey];
+
+            return $options;
+        }
+
+        $options = $this->doLoad($groupIds, $limit, $sortMode, $hiddenIds, $productSalesChannelId, $context);
+        $this->memo[$memoKey] = [$options, $this->lastCheckEmpty];
+
+        return $options;
+    }
+
+    public function reset(): void
+    {
+        $this->memo = [];
+        $this->lastCheckEmpty = false;
+    }
+
+    /**
+     * @param list<string> $groupIds
+     * @param list<string> $hiddenIds
+     */
+    private function doLoad(
+        array $groupIds,
+        int $limit,
+        string $sortMode,
+        array $hiddenIds,
+        ?string $productSalesChannelId,
+        Context $context
+    ): PropertyGroupOptionCollection {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('groupId', $groupIds));
         $criteria->setLimit(max($limit, 1));

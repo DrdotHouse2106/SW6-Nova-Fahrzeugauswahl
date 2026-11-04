@@ -1,3 +1,8 @@
+# 1.15.0
+- Security: the **HTTP cache key** now also only includes the vehicle cookie if it is a known option. Shopware builds this key before the sales channel is known – so far only the UUID format was checked there and every random UUID created a separate page in the HTTP cache. It is now checked against the options of all property groups configured in any sales channel (one cached list, no user input in the cache key), renewed immediately when options or the configured groups change
+- Performance: the vehicle list is loaded only once per request (header, footer and category heading share the result)
+- Compatibility: `composer.json` now requires Shopware **6.7** (`~6.7.0`) instead of `^6.6` – only 6.7 is tested and used
+
 # 1.14.1
 - Licence changed to **MIT** (like all Nova plugins; composer.json already said MIT, the LICENSE file was still GPL-3.0)
 - README: contact via GitHub issues

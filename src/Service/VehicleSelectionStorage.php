@@ -19,7 +19,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * Wert eine eigene HTTP-Cache-Variante erzeugen (Cache-Flooding) und als
  * ungültige ID im DAL-Filter zu einer Exception statt zur Produktliste führen.
  * Zusätzlich muss die ID zu den Filtergruppen des Verkaufskanals gehören (VehicleOptionValidator),
- * sonst erzeugt jede zufällige UUID eigene Cache-Einträge.
+ * sonst erzeugt jede zufällige UUID eigene Cache-Einträge. Ist der Verkaufskanal noch nicht bekannt
+ * (HTTP-Cache-Schlüssel), gilt die kanalübergreifende Liste aller eingestellten Filtergruppen.
  */
 class VehicleSelectionStorage
 {
@@ -59,7 +60,9 @@ class VehicleSelectionStorage
 
         $salesChannelId ??= $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
         if (!\is_string($salesChannelId) || !Uuid::isValid($salesChannelId)) {
-            return $optionId;
+            // Verkaufskanal noch unbekannt (HTTP-Cache-Schlüssel wird vor dem RequestTransformer gebildet):
+            // kanalübergreifende Liste aller eingestellten Filtergruppen
+            return $this->validator->isKnown($optionId) ? $optionId : null;
         }
 
         return $this->validator->isValid($optionId, $salesChannelId) ? $optionId : null;

@@ -2,7 +2,7 @@
 
 [![Spendier mir einen Kaffee](https://img.shields.io/badge/☕_Spendier_mir_einen_Kaffee-PayPal-0070ba?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/DrdotHouse)
 
-Schlankes Shopware 6.6+ Plugin für eine globale, horizontale Fahrzeug-Schnellauswahl
+Schlankes Shopware-6.7-Plugin für eine globale, horizontale Fahrzeug-Schnellauswahl
 im Storefront-Header. Kein Dropdown – Fahrzeuge werden als Kacheln / Pills nebeneinander
 angezeigt. Single-Select per Klick, global über alle Kategorien.
 
@@ -135,7 +135,7 @@ automatisch als Kacheln.
 
 - Der Filter greift serverseitig über das Cookie → nach einem Klick lädt die Seite einmal neu.
 - Es ist immer **genau ein** Fahrzeug aktiv oder keins (kein Cookie = „Alle Fahrzeuge").
-- Der Cookie-Wert wird serverseitig nur akzeptiert, wenn er eine gültige UUID ist (`VehicleSelectionStorage::sanitize`). Ungültige Werte werden ignoriert und gelangen weder in den HTTP-Cache-Key noch in den Produktfilter.
+- Der Cookie-Wert wird serverseitig nur akzeptiert, wenn er eine gültige UUID ist (`VehicleSelectionStorage::sanitize`). Ungültige Werte werden ignoriert und gelangen weder in den HTTP-Cache-Key noch in den Produktfilter. Zusätzlich muss die ID eine Ausprägung der eingestellten Filtergruppen sein: Produktfilter und Menü prüfen gegen die Gruppen des Verkaufskanals, der HTTP-Cache-Key (wird von Shopware gebildet, bevor der Verkaufskanal feststeht) gegen die Ausprägungen aller in irgendeinem Verkaufskanal eingestellten Filtergruppen. Zufällige UUIDs erzeugen so keine eigenen Seiten im HTTP-Cache. Ist Cache oder Datenbank nicht erreichbar, gilt nur die Formatprüfung.
 - Die Fahrzeug-Beschreibung (Zusatzfeld) wird mit `sw_sanitize` ausgegeben, nicht mit `raw`.
 - Ist die im Cookie gespeicherte Option in den aktuell konfigurierten Gruppen nicht
   (mehr) vorhanden, wird sie ignoriert, damit der Kunde nicht in einem leeren Filter feststeckt.

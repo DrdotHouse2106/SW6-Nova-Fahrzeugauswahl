@@ -1,3 +1,8 @@
+# 1.15.0
+- Sicherheit: Auch der **HTTP-Cache-Schlüssel** nimmt das Fahrzeug-Cookie nur noch auf, wenn es eine bekannte Ausprägung ist. Shopware bildet diesen Schlüssel, bevor der Verkaufskanal feststeht – bisher galt dort nur die UUID-Formatprüfung, jede zufällige UUID erzeugte eine eigene Seite im HTTP-Cache. Jetzt wird gegen die Ausprägungen aller Filtergruppen geprüft, die in irgendeinem Verkaufskanal eingestellt sind (eine zwischengespeicherte Liste ohne Nutzereingabe im Schlüssel). Die Liste wird beim Ändern von Ausprägungen oder der Filtergruppen sofort erneuert
+- Leistung: Die Fahrzeugliste wird je Seitenaufruf nur noch einmal geladen (Kopfbereich, Fußbereich und Kategorieüberschrift teilen sich das Ergebnis)
+- Kompatibilität: `composer.json` verlangt jetzt Shopware **6.7** (`~6.7.0`) statt `^6.6` – getestet und eingesetzt wird nur 6.7
+
 # 1.14.1
 - Lizenz auf **MIT** umgestellt (wie alle Nova-Plugins; composer.json nannte schon MIT, die LICENSE-Datei war noch GPL-3.0)
 - README: Kontakt über GitHub-Issues
