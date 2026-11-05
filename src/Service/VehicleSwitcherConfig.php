@@ -127,6 +127,12 @@ class VehicleSwitcherConfig
         return array_values(array_unique([$optionId, ...$this->getUniversalOptionIds($salesChannelId)]));
     }
 
+    /** Fahrzeugfilter auch für Cross-Selling und Produkt-Slider (Standard an) */
+    public function filterSliders(?string $salesChannelId): bool
+    {
+        return $this->systemConfigService->get(self::PREFIX . 'filterSliders', $salesChannelId) !== false;
+    }
+
     public function onlyWithProducts(?string $salesChannelId): bool
     {
         return (bool) $this->systemConfigService->get(self::PREFIX . 'onlyWithProducts', $salesChannelId);

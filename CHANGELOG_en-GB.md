@@ -1,3 +1,6 @@
+# 1.17.0
+- New: the vehicle filter now also applies to **cross-selling on the product page** (assigned products and product streams) and to **product sliders in shopping experiences**. Previously parts for other vehicles appeared there although a vehicle was selected. Universal options apply as in categories. Can be switched off via “Also filter cross-selling and product sliders” (default on). “Recently viewed” stays unfiltered
+
 # 1.16.0
 - New: interface for other plugins – the vehicle filter can be skipped for a single query via the criteria state `nova-vehicle-filter-skip`, and a filtered query carries the extension `novaVehicleFilter` (`optionId`). Nova Search from 1.16.0 uses this to show results for other models when the selected vehicle has none
 

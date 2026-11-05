@@ -65,6 +65,13 @@
             <helpText>Blendet automatisch alle Ausprägungen aus, denen (im aktuellen Verkaufskanal) kein sichtbares Produkt zugeordnet ist. Kostet pro Seitenaufruf eine zusätzliche Abfrage.</helpText>
             <defaultValue>false</defaultValue>
         </input-field>
+
+        <input-field type="bool">
+            <name>filterSliders</name>
+            <label>Auch Cross-Selling und Produkt-Slider filtern</label>
+            <helpText>Zeigt im Cross-Selling der Produktseite („Passend dazu“, „Ähnliche Artikel“ …) und in Produkt-Slidern von Erlebniswelten nur Artikel für das gewählte Fahrzeug (plus universelle Ausprägungen). Artikel ohne Fahrzeugzuordnung erscheinen dort dann nicht.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
     </card>
 
     <card>

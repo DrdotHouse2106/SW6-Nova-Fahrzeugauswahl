@@ -2,9 +2,15 @@
 
 namespace Ulber\FahrzeugSchnellauswahl\Subscriber;
 
+use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -13,7 +19,9 @@ use Ulber\FahrzeugSchnellauswahl\Service\VehicleSwitcherConfig;
 
 /**
  * Globaler Kategoriefilter: sobald ein Fahrzeug in der Session aktiv ist,
- * wird JEDE Produktauflistung (Kategorie / Suche) auf diese OptionId eingeschränkt.
+ * wird JEDE Produktauflistung (Kategorie / Suche) auf diese OptionId eingeschränkt – und (abschaltbar über
+ * „Auch Cross-Selling und Produkt-Slider filtern“) Cross-Selling auf der Produktseite sowie Produkt-Slider
+ * in Erlebniswelten.
  *
  * Schnittstelle für andere Plugins (z. B. eine Suche, die bei 0 Treffern „für andere Modelle“ anbietet):
  * - Criteria-State SKIP_STATE: Filter für diese eine Abfrage weglassen.
@@ -36,18 +44,41 @@ class ProductListingSubscriber implements EventSubscriberInterface
             ProductListingCriteriaEvent::class => 'applyVehicleFilter',
             ProductSearchCriteriaEvent::class => 'applyVehicleFilter',
             ProductSuggestCriteriaEvent::class => 'applyVehicleFilter',
+            ProductCrossSellingIdsCriteriaEvent::class => 'onCrossSelling',
+            ProductCrossSellingStreamCriteriaEvent::class => 'onCrossSelling',
+            ProductSliderStaticCriteriaEvent::class => 'onSlider',
+            ProductSliderStreamCriteriaEvent::class => 'onSlider',
         ];
     }
 
     public function applyVehicleFilter(ProductListingCriteriaEvent $event): void
     {
-        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
+        $this->apply($event->getCriteria(), $event->getSalesChannelContext());
+    }
+
+    public function onCrossSelling(ProductCrossSellingIdsCriteriaEvent|ProductCrossSellingStreamCriteriaEvent $event): void
+    {
+        if ($this->config->filterSliders($event->getSalesChannelContext()->getSalesChannelId())) {
+            $this->apply($event->getCriteria(), $event->getSalesChannelContext());
+        }
+    }
+
+    public function onSlider(ProductSliderStaticCriteriaEvent|ProductSliderStreamCriteriaEvent $event): void
+    {
+        if ($this->config->filterSliders($event->getSalesChannelContext()->getSalesChannelId())) {
+            $this->apply($event->criteria, $event->getSalesChannelContext());
+        }
+    }
+
+    private function apply(Criteria $criteria, SalesChannelContext $context): void
+    {
+        $salesChannelId = $context->getSalesChannelId();
 
         if (!$this->config->isActive($salesChannelId)) {
             return;
         }
 
-        if ($event->getCriteria()->hasState(self::SKIP_STATE)) {
+        if ($criteria->hasState(self::SKIP_STATE)) {
             return;
         }
 
@@ -59,9 +90,9 @@ class ProductListingSubscriber implements EventSubscriberInterface
 
         // Als "normaler" Filter (nicht Post-Filter): wirkt auf Ergebnis UND Aggregationen,
         // damit die Sidebar-Filter zur eingeschränkten Fahrzeug-Auswahl passen.
-        $event->getCriteria()->addFilter(
+        $criteria->addFilter(
             new EqualsAnyFilter('product.properties.id', $this->config->getFilterOptionIds($optionId, $salesChannelId))
         );
-        $event->getCriteria()->addExtension(self::EXTENSION, new ArrayStruct(['optionId' => $optionId]));
+        $criteria->addExtension(self::EXTENSION, new ArrayStruct(['optionId' => $optionId]));
     }
 }

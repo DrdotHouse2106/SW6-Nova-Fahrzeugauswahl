@@ -1,3 +1,6 @@
+# 1.17.0
+- Neu: Der Fahrzeugfilter wirkt jetzt auch im **Cross-Selling der Produktseite** (manuell zugeordnet und über dynamische Produktgruppen) und in **Produkt-Slidern von Erlebniswelten**. Bisher erschienen dort z. B. 11CV-Teile, obwohl 2CV6 gewählt war. Universelle Ausprägungen gelten wie in den Kategorien. Abschaltbar über „Auch Cross-Selling und Produkt-Slider filtern“ (Standard an). „Zuletzt angesehen“ bleibt ungefiltert
+
 # 1.16.0
 - Neu: Schnittstelle für andere Plugins – der Fahrzeugfilter lässt sich für eine einzelne Abfrage über den Criteria-State `nova-vehicle-filter-skip` weglassen, und eine gefilterte Abfrage trägt die Erweiterung `novaVehicleFilter` (`optionId`). Nova Suche ab 1.16.0 nutzt das, um bei 0 Treffern für das gewählte Fahrzeug die Treffer für andere Modelle anzuzeigen
 

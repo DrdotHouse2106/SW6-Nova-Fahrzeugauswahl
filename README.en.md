@@ -15,7 +15,7 @@ Single select per click, applied globally across every category.
 | Data source | Plain Shopware **properties**. Two property groups are picked in the admin (e.g. "Suitable for" / "Suitable for A-type"). How those groups get filled – by hand, via import or from an ERP – is irrelevant to the plugin. |
 | Rendering | `HeaderPageletSubscriber` attaches the group options as the `vehicleSwitcher` extension on the header pagelet. Twig renders the pill bar below the header. |
 | Selection | JS plugin `VehicleSwitcher`: a click activates exactly one vehicle (no stacking). Clicking the active vehicle or "All vehicles" clears the selection. The value is stored in `localStorage` **and** POSTed into the sales channel session. |
-| Global filter | `ProductListingSubscriber` listens on `ProductListingCriteriaEvent` / `ProductSearchCriteriaEvent` / `ProductSuggestCriteriaEvent` and, while a vehicle is active, adds `EqualsFilter('product.properties.id', <optionId>)` to the `Criteria` – for every category / search. |
+| Global filter | `ProductListingSubscriber` listens on `ProductListingCriteriaEvent` / `ProductSearchCriteriaEvent` / `ProductSuggestCriteriaEvent` and, while a vehicle is active, adds `EqualsFilter('product.properties.id', <optionId>)` to the `Criteria` – for every category / search. From 1.17.0 also cross-selling (`ProductCrossSellingIds/StreamCriteriaEvent`) and product sliders (`ProductSliderStatic/StreamCriteriaEvent`), switchable via `filterSliders`. |
 | Multi shop | Field **"Active in these sales channels"** – a multi-select. Bar **and** filter apply only in the chosen channels. No per-channel inheritance fiddling. |
 
 ## Directory layout
