@@ -1,3 +1,6 @@
+# 1.16.0
+- Neu: Schnittstelle für andere Plugins – der Fahrzeugfilter lässt sich für eine einzelne Abfrage über den Criteria-State `nova-vehicle-filter-skip` weglassen, und eine gefilterte Abfrage trägt die Erweiterung `novaVehicleFilter` (`optionId`). Nova Suche ab 1.16.0 nutzt das, um bei 0 Treffern für das gewählte Fahrzeug die Treffer für andere Modelle anzuzeigen
+
 # 1.15.0
 - Sicherheit: Auch der **HTTP-Cache-Schlüssel** nimmt das Fahrzeug-Cookie nur noch auf, wenn es eine bekannte Ausprägung ist. Shopware bildet diesen Schlüssel, bevor der Verkaufskanal feststeht – bisher galt dort nur die UUID-Formatprüfung, jede zufällige UUID erzeugte eine eigene Seite im HTTP-Cache. Jetzt wird gegen die Ausprägungen aller Filtergruppen geprüft, die in irgendeinem Verkaufskanal eingestellt sind (eine zwischengespeicherte Liste ohne Nutzereingabe im Schlüssel). Die Liste wird beim Ändern von Ausprägungen oder der Filtergruppen sofort erneuert
 - Leistung: Die Fahrzeugliste wird je Seitenaufruf nur noch einmal geladen (Kopfbereich, Fußbereich und Kategorieüberschrift teilen sich das Ergebnis)

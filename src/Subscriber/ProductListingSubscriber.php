@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Ulber\FahrzeugSchnellauswahl\Service\VehicleSelectionStorage;
 use Ulber\FahrzeugSchnellauswahl\Service\VehicleSwitcherConfig;
@@ -13,9 +14,16 @@ use Ulber\FahrzeugSchnellauswahl\Service\VehicleSwitcherConfig;
 /**
  * Globaler Kategoriefilter: sobald ein Fahrzeug in der Session aktiv ist,
  * wird JEDE Produktauflistung (Kategorie / Suche) auf diese OptionId eingeschränkt.
+ *
+ * Schnittstelle für andere Plugins (z. B. eine Suche, die bei 0 Treffern „für andere Modelle“ anbietet):
+ * - Criteria-State SKIP_STATE: Filter für diese eine Abfrage weglassen.
+ * - Criteria-Erweiterung EXTENSION (`optionId`): gesetzt, wenn der Filter angewendet wurde.
  */
 class ProductListingSubscriber implements EventSubscriberInterface
 {
+    public const SKIP_STATE = 'nova-vehicle-filter-skip';
+    public const EXTENSION = 'novaVehicleFilter';
+
     public function __construct(
         private readonly VehicleSwitcherConfig $config,
         private readonly VehicleSelectionStorage $selectionStorage
@@ -39,6 +47,10 @@ class ProductListingSubscriber implements EventSubscriberInterface
             return;
         }
 
+        if ($event->getCriteria()->hasState(self::SKIP_STATE)) {
+            return;
+        }
+
         $optionId = $this->selectionStorage->get($salesChannelId);
 
         if ($optionId === null) {
@@ -50,5 +62,6 @@ class ProductListingSubscriber implements EventSubscriberInterface
         $event->getCriteria()->addFilter(
             new EqualsAnyFilter('product.properties.id', $this->config->getFilterOptionIds($optionId, $salesChannelId))
         );
+        $event->getCriteria()->addExtension(self::EXTENSION, new ArrayStruct(['optionId' => $optionId]));
     }
 }

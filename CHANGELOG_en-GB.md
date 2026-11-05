@@ -1,3 +1,6 @@
+# 1.16.0
+- New: interface for other plugins – the vehicle filter can be skipped for a single query via the criteria state `nova-vehicle-filter-skip`, and a filtered query carries the extension `novaVehicleFilter` (`optionId`). Nova Search from 1.16.0 uses this to show results for other models when the selected vehicle has none
+
 # 1.15.0
 - Security: the **HTTP cache key** now also only includes the vehicle cookie if it is a known option. Shopware builds this key before the sales channel is known – so far only the UUID format was checked there and every random UUID created a separate page in the HTTP cache. It is now checked against the options of all property groups configured in any sales channel (one cached list, no user input in the cache key), renewed immediately when options or the configured groups change
 - Performance: the vehicle list is loaded only once per request (header, footer and category heading share the result)
