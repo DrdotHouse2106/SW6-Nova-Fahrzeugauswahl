@@ -196,7 +196,9 @@ class CategoryVehicleFilter
         $options = $optionIds ?? [];
         sort($options);
 
-        return 'nova-vehicle-categories-' . md5($salesChannelId . '|' . ($optionIds === null ? 'all' : implode(',', $options)));
+        $universal = $this->config->unassignedUniversalGroupIds($salesChannelId) !== [] ? '|u' : '';
+
+        return 'nova-vehicle-categories-' . md5($salesChannelId . '|' . ($optionIds === null ? 'all' : implode(',', $options)) . $universal);
     }
 
     /**
@@ -221,17 +223,32 @@ class CategoryVehicleFilter
         ];
         $types = [];
 
+        $vehicleWhere = '';
         if ($optionIds !== null) {
-            $joins .= '
-            INNER JOIN product_property pp ON pp.product_id = IFNULL(p.properties, p.id)
-                AND pp.product_version_id = p.version_id
-                AND pp.property_group_option_id IN (:optionIds)';
+            $groupIds = $this->config->unassignedUniversalGroupIds($salesChannelId);
+            $vehicleWhere = '
+                AND (EXISTS (SELECT 1 FROM product_property pp
+                        WHERE pp.product_id = IFNULL(p.properties, p.id)
+                          AND pp.product_version_id = p.version_id
+                          AND pp.property_group_option_id IN (:optionIds))';
+            if ($groupIds !== []) {
+                // Artikel ohne Ausprägung der Filtergruppen gelten als universell
+                $vehicleWhere .= '
+                    OR NOT EXISTS (SELECT 1 FROM product_property pu
+                        INNER JOIN property_group_option pgo ON pgo.id = pu.property_group_option_id
+                        WHERE pu.product_id = IFNULL(p.properties, p.id)
+                          AND pu.product_version_id = p.version_id
+                          AND pgo.property_group_id IN (:groupIds))';
+                $params['groupIds'] = Uuid::fromHexToBytesList($groupIds);
+                $types['groupIds'] = ArrayParameterType::BINARY;
+            }
+            $vehicleWhere .= ')';
             $params['optionIds'] = Uuid::fromHexToBytesList($optionIds);
             $types['optionIds'] = ArrayParameterType::BINARY;
         }
 
         $where = '
-            WHERE p.version_id = :version AND COALESCE(p.active, parent.active) = 1';
+            WHERE p.version_id = :version AND COALESCE(p.active, parent.active) = 1' . $vehicleWhere;
 
         // Feste Zuordnung (inkl. Elternkategorien) …
         ++$this->stats['queries'];

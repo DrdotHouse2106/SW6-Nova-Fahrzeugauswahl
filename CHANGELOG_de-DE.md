@@ -1,3 +1,6 @@
+# 1.18.0
+- Neu: **Artikel ohne Fahrzeugzuordnung gelten als universell** (Einstellung, Standard an). Hat ein Artikel noch keine Ausprägung aus den Filtergruppen – weder ein Fahrzeug noch „universell“ –, erscheint er bei jedem gewählten Fahrzeug: in Kategorien, Suche, Suchvorschlägen, Cross-Selling und Produkt-Slidern; Kategorien mit solchen Artikeln werden nicht mehr ausgeblendet. Sobald ein Fahrzeug oder „universell“ eingetragen ist, gilt diese Zuordnung
+
 # 1.17.0
 - Neu: Der Fahrzeugfilter wirkt jetzt auch im **Cross-Selling der Produktseite** (manuell zugeordnet und über dynamische Produktgruppen) und in **Produkt-Slidern von Erlebniswelten**. Bisher erschienen dort z. B. 11CV-Teile, obwohl 2CV6 gewählt war. Universelle Ausprägungen gelten wie in den Kategorien. Abschaltbar über „Auch Cross-Selling und Produkt-Slider filtern“ (Standard an). „Zuletzt angesehen“ bleibt ungefiltert
 

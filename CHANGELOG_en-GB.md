@@ -1,3 +1,6 @@
+# 1.18.0
+- New: **products without a vehicle assignment count as universal** (setting, default on). If a product has no option of the filter groups yet – neither a vehicle nor “universal” – it is shown for every selected vehicle: in categories, search, suggestions, cross-selling and product sliders; categories containing such products are no longer hidden. As soon as a vehicle or “universal” is assigned, that assignment applies
+
 # 1.17.0
 - New: the vehicle filter now also applies to **cross-selling on the product page** (assigned products and product streams) and to **product sliders in shopping experiences**. Previously parts for other vehicles appeared there although a vehicle was selected. Universal options apply as in categories. Can be switched off via “Also filter cross-selling and product sliders” (default on). “Recently viewed” stays unfiltered
 

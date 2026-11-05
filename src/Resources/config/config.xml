@@ -67,6 +67,13 @@
         </input-field>
 
         <input-field type="bool">
+            <name>unassignedIsUniversal</name>
+            <label>Artikel ohne Fahrzeugzuordnung gelten als universell</label>
+            <helpText>Hat ein Artikel noch keine Ausprägung aus den Filtergruppen (weder ein Fahrzeug noch „universell“), wird er bei jedem gewählten Fahrzeug angezeigt – in Kategorien, Suche, Cross-Selling und Slidern. Sobald ein Fahrzeug oder „universell“ eingetragen ist, gilt diese Zuordnung.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
             <name>filterSliders</name>
             <label>Auch Cross-Selling und Produkt-Slider filtern</label>
             <helpText>Zeigt im Cross-Selling der Produktseite („Passend dazu“, „Ähnliche Artikel“ …) und in Produkt-Slidern von Erlebniswelten nur Artikel für das gewählte Fahrzeug (plus universelle Ausprägungen). Artikel ohne Fahrzeugzuordnung erscheinen dort dann nicht.</helpText>

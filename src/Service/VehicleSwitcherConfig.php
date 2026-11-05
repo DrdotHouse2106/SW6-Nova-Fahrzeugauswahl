@@ -127,6 +127,21 @@ class VehicleSwitcherConfig
         return array_values(array_unique([$optionId, ...$this->getUniversalOptionIds($salesChannelId)]));
     }
 
+    /**
+     * Artikel ohne jede Ausprägung der Fahrzeug-Filtergruppen gelten als universell (Standard an).
+     * Liefert die Filtergruppen, wenn die Regel greift, sonst [].
+     *
+     * @return list<string>
+     */
+    public function unassignedUniversalGroupIds(?string $salesChannelId): array
+    {
+        if ($this->systemConfigService->get(self::PREFIX . 'unassignedIsUniversal', $salesChannelId) === false) {
+            return [];
+        }
+
+        return $this->getPropertyGroupIds($salesChannelId);
+    }
+
     /** Fahrzeugfilter auch für Cross-Selling und Produkt-Slider (Standard an) */
     public function filterSliders(?string $salesChannelId): bool
     {

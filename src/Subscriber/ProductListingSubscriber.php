@@ -12,6 +12,8 @@ use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Ulber\FahrzeugSchnellauswahl\Service\VehicleSelectionStorage;
@@ -90,9 +92,18 @@ class ProductListingSubscriber implements EventSubscriberInterface
 
         // Als "normaler" Filter (nicht Post-Filter): wirkt auf Ergebnis UND Aggregationen,
         // damit die Sidebar-Filter zur eingeschränkten Fahrzeug-Auswahl passen.
-        $criteria->addFilter(
-            new EqualsAnyFilter('product.properties.id', $this->config->getFilterOptionIds($optionId, $salesChannelId))
-        );
+        $vehicle = new EqualsAnyFilter('product.properties.id', $this->config->getFilterOptionIds($optionId, $salesChannelId));
+        $groupIds = $this->config->unassignedUniversalGroupIds($salesChannelId);
+        if ($groupIds === []) {
+            $criteria->addFilter($vehicle);
+        } else {
+            // … oder der Artikel hat noch gar keine Ausprägung der Filtergruppen (gilt dann als universell).
+            // NotFilter auf eine To-many-Verknüpfung wird vom DAL als NOT EXISTS aufgelöst.
+            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                $vehicle,
+                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsAnyFilter('product.properties.groupId', $groupIds)]),
+            ]));
+        }
         $criteria->addExtension(self::EXTENSION, new ArrayStruct(['optionId' => $optionId]));
     }
 }
