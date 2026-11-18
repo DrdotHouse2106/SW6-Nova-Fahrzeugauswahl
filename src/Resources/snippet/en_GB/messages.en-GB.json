@@ -2,6 +2,14 @@
     "vehicle-switcher": {
         "ariaLabel": "Vehicle quick switcher",
         "showAll": "All vehicles",
-        "activeHint": "Active vehicle"
+        "activeHint": "Active vehicle",
+        "fit": {
+            "fits": "Fits your %vehicle%",
+            "universal": "Fits all vehicles, including your %vehicle%",
+            "notListed": "Not listed for your %vehicle%",
+            "suitable": "Suitable for:",
+            "more": "and %count% more",
+            "ask": "Not sure? Ask us."
+        }
     }
 }

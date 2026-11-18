@@ -304,3 +304,42 @@ $vs-pill-active-color: var(--vs-pill-active-color, #ffffff) !default;
         text-wrap: balance;
     }
 }
+
+// „Passt zu Ihrem …“ auf der Produktseite
+.vehicle-fit {
+    display: flex;
+    gap: .6rem;
+    align-items: flex-start;
+    margin: 0 0 1rem;
+    padding: .65rem .85rem;
+    border-radius: var(--nova-radius, .5rem);
+    border: 1px solid var(--vehicle-fit-border, #b7d99a);
+    background: var(--vehicle-fit-bg, #eef7e6);
+    color: var(--vehicle-fit-color, #2c5a0c);
+    line-height: 1.35;
+
+    &--notListed {
+        border-color: var(--vehicle-fit-warn-border, #f0d9a8);
+        background: var(--vehicle-fit-warn-bg, #fff7e6);
+        color: var(--vehicle-fit-warn-color, #7a4d00);
+    }
+}
+
+.vehicle-fit-icon {
+    flex: 0 0 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: .85rem;
+    color: #fff;
+    background: var(--vehicle-fit-icon, #5c8f1f);
+}
+.vehicle-fit--notListed .vehicle-fit-icon { background: var(--vehicle-fit-warn-icon, #c98a00); }
+
+.vehicle-fit-list {
+    font-size: .875rem;
+    margin-top: .15rem;
+}

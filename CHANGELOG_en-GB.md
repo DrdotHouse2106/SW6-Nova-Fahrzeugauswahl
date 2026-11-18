@@ -1,3 +1,6 @@
+# 1.19.0
+- New: **“Fits your …” on the product page.** With a vehicle selected, a green “Fits your 2CV6” or “Fits all vehicles” (universal option) or a yellow “Not listed for your 2CV6” with the vehicles the product is assigned to appears above the add-to-cart button. Products without a vehicle assignment get no notice while they count as universal. Setting “Fits your … notice on the product page” (default on)
+
 # 1.18.0
 - New: **products without a vehicle assignment count as universal** (setting, default on). If a product has no option of the filter groups yet – neither a vehicle nor “universal” – it is shown for every selected vehicle: in categories, search, suggestions, cross-selling and product sliders; categories containing such products are no longer hidden. As soon as a vehicle or “universal” is assigned, that assignment applies
 

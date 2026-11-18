@@ -1,0 +1,22 @@
+{% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget.html.twig' %}
+
+{# Nova Fahrzeugauswahl: „Passt zu Ihrem …“ über dem Warenkorb-Knopf (Daten: ProductFitSubscriber) #}
+{% block buy_widget_buy_form %}
+    {% set vehicleFit = page.extensions.vehicleFit ?? null %}
+    {% if vehicleFit and product.id == page.product.id %}
+        {% set vf = { '%vehicle%': vehicleFit.vehicle } %}
+        <div class="vehicle-fit vehicle-fit--{{ vehicleFit.status }}" role="status">
+            <span class="vehicle-fit-icon" aria-hidden="true">{{ vehicleFit.status == 'notListed' ? '!' : '✓' }}</span>
+            <div>
+                <strong>{{ ('vehicle-switcher.fit.' ~ vehicleFit.status)|trans(vf) }}</strong>
+                {% if vehicleFit.status == 'notListed' and vehicleFit.vehicles|length > 0 %}
+                    <div class="vehicle-fit-list">
+                        {{ 'vehicle-switcher.fit.suitable'|trans }} {{ vehicleFit.vehicles|join(', ') }}
+                        {%- if vehicleFit.more > 0 %} {{ 'vehicle-switcher.fit.more'|trans({ '%count%': vehicleFit.more }) }}{% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    {{ parent() }}
+{% endblock %}

@@ -143,6 +143,12 @@ class VehicleSwitcherConfig
     }
 
     /** Fahrzeugfilter auch für Cross-Selling und Produkt-Slider (Standard an) */
+    /** Hinweis „Passt zu Ihrem …“ auf der Produktseite (Standard: an) */
+    public function showFitBadge(?string $salesChannelId): bool
+    {
+        return $this->systemConfigService->get(self::PREFIX . 'fitBadge', $salesChannelId) !== false;
+    }
+
     public function filterSliders(?string $salesChannelId): bool
     {
         return $this->systemConfigService->get(self::PREFIX . 'filterSliders', $salesChannelId) !== false;

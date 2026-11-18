@@ -1,3 +1,6 @@
+# 1.19.0
+- Neu: **„Passt zu Ihrem …“ auf der Produktseite.** Ist ein Fahrzeug gewählt, steht über dem Warenkorb-Knopf grün „Passt zu Ihrem 2CV6“ bzw. „Passt zu allen Fahrzeugen“ (universelle Ausprägung) oder gelb „Für Ihren 2CV6 nicht gelistet“ mit den Fahrzeugen, für die der Artikel eingetragen ist. Artikel ohne Fahrzeugzuordnung bekommen keinen Hinweis, solange sie als universell gelten. Einstellung „Hinweis „Passt zu Ihrem …“ auf der Produktseite“ (Standard an). Die Seite wird je Fahrzeug getrennt zwischengespeichert (wie bisher über den HTTP-Cache-Schlüssel)
+
 # 1.18.0
 - Neu: **Artikel ohne Fahrzeugzuordnung gelten als universell** (Einstellung, Standard an). Hat ein Artikel noch keine Ausprägung aus den Filtergruppen – weder ein Fahrzeug noch „universell“ –, erscheint er bei jedem gewählten Fahrzeug: in Kategorien, Suche, Suchvorschlägen, Cross-Selling und Produkt-Slidern; Kategorien mit solchen Artikeln werden nicht mehr ausgeblendet. Sobald ein Fahrzeug oder „universell“ eingetragen ist, gilt diese Zuordnung
 

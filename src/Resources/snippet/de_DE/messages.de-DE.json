@@ -2,6 +2,14 @@
     "vehicle-switcher": {
         "ariaLabel": "Fahrzeug-Schnellauswahl",
         "showAll": "Alle Fahrzeuge",
-        "activeHint": "Aktives Fahrzeug"
+        "activeHint": "Aktives Fahrzeug",
+        "fit": {
+            "fits": "Passt zu Ihrem %vehicle%",
+            "universal": "Passt zu allen Fahrzeugen, auch zu Ihrem %vehicle%",
+            "notListed": "Für Ihren %vehicle% nicht gelistet",
+            "suitable": "Geeignet für:",
+            "more": "und %count% weitere",
+            "ask": "Unsicher? Fragen Sie uns."
+        }
     }
 }

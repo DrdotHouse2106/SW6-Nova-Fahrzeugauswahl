@@ -163,6 +163,13 @@
         </input-field>
 
         <input-field type="bool">
+            <name>fitBadge</name>
+            <label>Hinweis „Passt zu Ihrem …“ auf der Produktseite</label>
+            <helpText>Ist ein Fahrzeug gewählt, steht über dem Warenkorb-Knopf „Passt zu Ihrem 2CV6“ (grün), „Passt zu allen Fahrzeugen“ oder „Für Ihren 2CV6 nicht gelistet“ mit den passenden Fahrzeugen. Artikel ohne Fahrzeugzuordnung bekommen keinen Hinweis, wenn sie als universell gelten.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
             <name>showActiveDescription</name>
             <label>Fahrzeug-Beschreibung anzeigen</label>
             <helpText>Zeigt einen Text-Block mit der Spezifikation des aktiven Fahrzeugs. Der Text wird pro Ausprägung im Custom-Field „Fahrzeug-Beschreibung“ gepflegt (Kataloge → Eigenschaften → Ausprägung → Reiter Zusatzfelder) oder per ERP-Sync befüllt.</helpText>
