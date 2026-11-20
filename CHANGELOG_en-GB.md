@@ -1,3 +1,6 @@
+# 1.19.1
+- Category heading: "for <vehicle>" suffix only on product listing categories, not on shop pages such as legal texts
+
 # 1.19.0
 - New: **“Fits your …” on the product page.** With a vehicle selected, a green “Fits your 2CV6” or “Fits all vehicles” (universal option) or a yellow “Not listed for your 2CV6” with the vehicles the product is assigned to appears above the add-to-cart button. Products without a vehicle assignment get no notice while they count as universal. Setting “Fits your … notice on the product page” (default on)
 

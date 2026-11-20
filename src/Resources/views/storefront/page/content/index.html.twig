@@ -1,7 +1,8 @@
 {% sw_extends '@Storefront/storefront/page/content/index.html.twig' %}
 
 {#
-    Optionale Überschrift auf Kategorieseiten: Kategoriename, bei aktivem Fahrzeug „<Kategorie> für <Fahrzeug>“.
+    Optionale Überschrift auf Kategorieseiten: Kategoriename, bei aktivem Fahrzeug „<Kategorie> für <Fahrzeug>“
+    (nur auf Listing-Seiten, nicht auf Shopseiten wie Rechtstexten).
     Einschalten in der Plugin-Konfiguration („Kategorie-Überschrift“). Nicht auf der Startseite.
 #}
 {% block cms_breadcrumb %}
@@ -16,7 +17,7 @@
             <div class="container vehicle-switcher-heading">
                 <h1 class="vehicle-switcher-heading__title">
                     {{- vswCategory.translated.name|sw_sanitize -}}
-                    {%- if vsw.vehicle %} {{ vsw.joiner|sw_sanitize }} <span class="vehicle-switcher-heading__vehicle">{{ vsw.vehicle|sw_sanitize }}</span>{% endif -%}
+                    {%- if vsw.vehicle and (page.cmsPage.type ?? '') == 'product_list' %} {{ vsw.joiner|sw_sanitize }} <span class="vehicle-switcher-heading__vehicle">{{ vsw.vehicle|sw_sanitize }}</span>{% endif -%}
                 </h1>
             </div>
         {% endblock %}
